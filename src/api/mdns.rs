@@ -25,7 +25,7 @@ pub struct ServiceScanner {
 #[derive(PartialEq, PartialOrd, Clone, Debug, Ord, Eq)]
 pub struct HostRecord {
     pub name: String,
-    pub addr: BTreeSet<IpAddr>,
+    pub addr: Vec<IpAddr>,
     pub port: u16,
 }
 
@@ -123,6 +123,8 @@ impl ServiceScannerInner {
                                 .get_addresses()
                                 .into_iter()
                                 .map(|v| v.clone())
+                                .collect::<BTreeSet<_>>()
+                                .into_iter()
                                 .collect(),
                             port: info.get_port(),
                         },
