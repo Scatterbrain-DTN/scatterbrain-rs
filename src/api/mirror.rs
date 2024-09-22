@@ -5,13 +5,13 @@ use flutter_rust_bridge::frb;
 #[frb(mirror(Ipv4Addr))]
 #[derive(Clone, Debug)]
 pub struct _Ipv4Addr {
-    octets: [u8; 4],
+    pub octets: [u8; 4],
 }
 
 #[frb(mirror(Ipv6Addr))]
 #[derive(Clone, Debug)]
 pub struct _Ipv6Addr {
-    octets: [u8; 16],
+    pub octets: [u8; 16],
 }
 
 #[frb(mirror(IpAddr, Ipv4Addr, Ipv6Addr))]
