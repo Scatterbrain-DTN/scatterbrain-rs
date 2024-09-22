@@ -1,6 +1,6 @@
 use std::array::TryFromSliceError;
 
-use crate::proto::{unit_response::MaybeMessage, RespCode, UnitResponse};
+use crate::proto::{unit_response::UnitresponseMaybeMessage, RespCode, UnitResponse};
 
 pub type SbResult<T> = std::result::Result<T, Error>;
 
@@ -52,9 +52,9 @@ impl IntoRemoteErr for UnitResponse {
     fn into_remote_err(self) -> SbResult<()> {
         if self.code() != RespCode::Ok {
             Err(self
-                .maybe_message
+                .unitresponse_maybe_message
                 .map(|v| {
-                    let MaybeMessage::Message(v) = v;
+                    let UnitresponseMaybeMessage::MessageCode(v) = v;
                     Error::RemoteError(v)
                 })
                 .unwrap_or_else(|| Error::RemoteError("".to_owned())))

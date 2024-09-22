@@ -5,3 +5,4 @@ pub mod mdns;
 pub mod mirror;
 pub mod response;
 pub mod serialize;
+pub mod types;

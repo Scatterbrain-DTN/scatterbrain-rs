@@ -8,12 +8,12 @@ package proto;
 message Ack {
     bool success = 1;
     int32 status = 2;
-    oneof message {
+    oneof ack_maybe_message {
         string text = 3;
     }
 }
 
-// Protobuf has no native uuid type. This is 128 bit uuid.
+// Protobuf has no native ProtoUuid type. This is 128 bit ProtoUuid.
 message ProtoUuid {
     uint64 lower = 1;
     uint64 upper = 2;
@@ -248,8 +248,8 @@ message PairingRequest {
 message UnitResponse {
     ApiHeader header = 1;
     RespCode code = 2;
-    oneof maybeMessage {
-        string message = 3;
+    oneof unitresponse_maybe_message {
+        string message_code = 3;
     }
 }
 
@@ -376,13 +376,13 @@ message GetEvents {
     }
 }
 
-message Events {
+message SbEvents {
     ApiHeader header = 1;
-    repeated Event events = 2;
+    repeated SbEvent events = 2;
 }
 
-message Event {
-    oneof Event {
+message SbEvent {
+    oneof MaybeEvent {
         NewMessage newMessage = 21;
         NewIdentity newIdentities = 2;
     }

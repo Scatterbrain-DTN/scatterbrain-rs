@@ -18,9 +18,9 @@ pub use crate::{
         import_identity_command::MaybeHandle,
         import_identity_response::{FinalResponse, State},
         send_message_cmd::SignIdentity,
-        Ack, CryptoMessage, Event, Events, GetEvents, GetIdentityCommand, GetMessagesCmd,
-        IdentityResponse, ImportIdentityCommand, ImportIdentityResponse, MessageResponse,
-        PairingAck, PairingInitiate, PairingRequest, SendMessageCmd, UnitResponse,
+        Ack, CryptoMessage, GetEvents, GetIdentityCommand, GetMessagesCmd, IdentityResponse,
+        ImportIdentityCommand, ImportIdentityResponse, MessageResponse, PairingAck,
+        PairingInitiate, PairingRequest, SbEvent, SbEvents, SendMessageCmd, UnitResponse,
     },
     response::{Identity, Message},
     serialize::{ProtoStream, ToUuid},
@@ -69,7 +69,7 @@ where
         id.try_into()
     }
 
-    pub async fn get_events(&mut self, block: bool, count: Option<u32>) -> SbResult<Vec<Event>> {
+    pub async fn get_events(&mut self, block: bool, count: Option<u32>) -> SbResult<Vec<SbEvent>> {
         let cmd = GetEvents {
             header: Some(self.get_header()),
             block,
@@ -77,7 +77,7 @@ where
         };
 
         self.write_crypto(cmd).await?;
-        let resp: Events = self.read_crypto().await?;
+        let resp: SbEvents = self.read_crypto().await?;
         Ok(resp.events)
     }
 

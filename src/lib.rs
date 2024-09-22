@@ -9,7 +9,7 @@ pub use api::error;
 pub use api::mdns;
 pub use api::response;
 pub use api::serialize;
-pub mod types;
+pub use api::types;
 
 pub fn init() -> SbResult<()> {
     sodiumoxide::init().map_err(|_| Error::Crypto("Failed to init".to_owned()))?;
