@@ -2,15 +2,16 @@ use std::sync::Arc;
 pub use std::{
     collections::{BTreeMap, BTreeSet},
     future::Future,
-    net::IpAddr,
 };
 
 #[cfg(feature = "flutter")]
 use flutter_rust_bridge::{frb, DartFnFuture};
 pub use mdns_sd::{ServiceDaemon, ServiceEvent};
+pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use tokio_util::sync::CancellationToken;
 
 use crate::error::SbResult;
+
 pub type HostRecords<'a> = tokio::sync::RwLockReadGuard<'a, BTreeMap<String, HostRecord>>;
 
 struct ServiceScannerInner {
@@ -22,7 +23,7 @@ pub struct ServiceScanner {
     handle: Option<CancellationToken>,
 }
 
-#[derive(PartialEq, PartialOrd, Clone, Debug, Ord, Eq)]
+#[derive(Clone, Debug)]
 pub struct HostRecord {
     pub name: String,
     pub addr: Vec<IpAddr>,
@@ -125,6 +126,7 @@ impl ServiceScannerInner {
                                 .map(|v| v.clone())
                                 .collect::<BTreeSet<_>>()
                                 .into_iter()
+                                .map(|v| v.into())
                                 .collect(),
                             port: info.get_port(),
                         },

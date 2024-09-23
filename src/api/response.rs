@@ -3,7 +3,7 @@ use std::{collections::HashMap, fmt};
 use serde::{ser::Error, Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
+pub use crate::{
     error::{Error as CrateError, SbResult},
     proto::{ApiMessage, IdentityResponse, MessageResponse, RespCode},
     serialize::ToUuid,

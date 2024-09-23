@@ -1,0 +1,1 @@
+rust_input: crate::api,std::net,crate::proto

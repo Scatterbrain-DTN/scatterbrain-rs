@@ -45,7 +45,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.4.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2000606276;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1173764766;
 
 // Section: executor
 
@@ -53,6 +53,398 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__Ipv4Addr_is_loopback_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv4Addr_is_loopback",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::Ipv4Addr::is_loopback(&*api_that_guard))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__Ipv4Addr_is_multicast_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv4Addr_is_multicast",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::Ipv4Addr::is_multicast(&*api_that_guard))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__Ipv4Addr_is_unspecified_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv4Addr_is_unspecified",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::Ipv4Addr::is_unspecified(&*api_that_guard))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__Ipv4Addr_to_string_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv4Addr_to_string",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let mut api_that_guard = None;
+                let decode_indices_ =
+                    flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                        flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                            &api_that, 0, false,
+                        ),
+                    ]);
+                for i in decode_indices_ {
+                    match i {
+                        0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                        _ => unreachable!(),
+                    }
+                }
+                let api_that_guard = api_that_guard.unwrap();
+                let output_ok = Result::<_, ()>::Ok(crate::Ipv4Addr::to_string(&*api_that_guard))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__Ipv6Addr_is_loopback_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv6Addr_is_loopback",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::Ipv6Addr::is_loopback(&*api_that_guard))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__Ipv6Addr_is_multicast_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv6Addr_is_multicast",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::Ipv6Addr::is_multicast(&*api_that_guard))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__Ipv6Addr_is_unspecified_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv6Addr_is_unspecified",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::Ipv6Addr::is_unspecified(&*api_that_guard))?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__Ipv6Addr_to_string_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "Ipv6Addr_to_string",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let mut api_that_guard = None;
+                let decode_indices_ =
+                    flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                        flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                            &api_that, 0, false,
+                        ),
+                    ]);
+                for i in decode_indices_ {
+                    match i {
+                        0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                        _ => unreachable!(),
+                    }
+                }
+                let api_that_guard = api_that_guard.unwrap();
+                let output_ok = Result::<_, ()>::Ok(crate::Ipv6Addr::to_string(&*api_that_guard))?;
+                Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__mdns__ServiceScanner_discover_devices_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -1416,6 +1808,18 @@ fn wire__crate__proto__unit_response_into_remote_err_impl(
     )
 }
 
+// Section: static_checks
+
+#[allow(clippy::unnecessary_literal_unwrap)]
+const _: fn() = || match None::<crate::api::mirror::IpAddr>.unwrap() {
+    crate::api::mirror::IpAddr::V4(field0) => {
+        let _: Ipv4Addr = field0;
+    }
+    crate::api::mirror::IpAddr::V6(field0) => {
+        let _: Ipv6Addr = field0;
+    }
+};
+
 // Section: related_funcs
 
 fn decode_DartFn_Inputs_list_host_record_Output_unit_AnyhowException(
@@ -1454,7 +1858,10 @@ fn decode_DartFn_Inputs_list_host_record_Output_unit_AnyhowException(
     }
 }
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
-    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>
@@ -1479,11 +1886,21 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
-impl SseDecode for IpAddr {
+impl SseDecode for Ipv4Addr {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <RustOpaqueMoi<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>,
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for Ipv6Addr {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
     }
@@ -1547,7 +1964,19 @@ impl SseDecode for std::collections::HashMap<String, Vec<u8>> {
     }
 }
 
-impl SseDecode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>> {
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <usize>::sse_decode(deserializer);
@@ -1788,7 +2217,7 @@ impl SseDecode for crate::api::mdns::HostRecord {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_name = <String>::sse_decode(deserializer);
-        let mut var_addr = <Vec<IpAddr>>::sse_decode(deserializer);
+        let mut var_addr = <Vec<crate::api::mirror::IpAddr>>::sse_decode(deserializer);
         let mut var_port = <u16>::sse_decode(deserializer);
         return crate::api::mdns::HostRecord {
             name: var_name,
@@ -1870,22 +2299,30 @@ impl SseDecode for crate::proto::ImportIdentityResponse {
     }
 }
 
+impl SseDecode for crate::api::mirror::IpAddr {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut tag_ = <i32>::sse_decode(deserializer);
+        match tag_ {
+            0 => {
+                let mut var_field0 = <Ipv4Addr>::sse_decode(deserializer);
+                return crate::api::mirror::IpAddr::V4(var_field0);
+            }
+            1 => {
+                let mut var_field0 = <Ipv6Addr>::sse_decode(deserializer);
+                return crate::api::mirror::IpAddr::V6(var_field0);
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+
 impl SseDecode for isize {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_i64::<NativeEndian>().unwrap() as _
-    }
-}
-
-impl SseDecode for Vec<IpAddr> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut len_ = <i32>::sse_decode(deserializer);
-        let mut ans_ = vec![];
-        for idx_ in 0..len_ {
-            ans_.push(<IpAddr>::sse_decode(deserializer));
-        }
-        return ans_;
     }
 }
 
@@ -1920,6 +2357,18 @@ impl SseDecode for Vec<crate::api::mdns::HostRecord> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<crate::api::mdns::HostRecord>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::mirror::IpAddr> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::mirror::IpAddr>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -2586,134 +3035,140 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        2 => wire__crate__api__mdns__ServiceScanner_discover_devices_impl(
+        1 => wire__crate__Ipv4Addr_is_loopback_impl(port, ptr, rust_vec_len, data_len),
+        2 => wire__crate__Ipv4Addr_is_multicast_impl(port, ptr, rust_vec_len, data_len),
+        3 => wire__crate__Ipv4Addr_is_unspecified_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__Ipv6Addr_is_loopback_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__Ipv6Addr_is_multicast_impl(port, ptr, rust_vec_len, data_len),
+        7 => wire__crate__Ipv6Addr_is_unspecified_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__mdns__ServiceScanner_discover_devices_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        4 => {
+        12 => {
             wire__crate__api__mdns__ServiceScanner_stop_scan_impl(port, ptr, rust_vec_len, data_len)
         }
-        5 => wire__crate__api__mdns__host_record_connect_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
-        13 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__proto__crypto_message_get_type_message_impl(
+        13 => wire__crate__api__mdns__host_record_connect_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__proto__crypto_message_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        15 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        16 => {
+        23 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        24 => {
             wire__crate__proto__get_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        17 => wire__crate__proto__get_identity_command_get_type_impl(
+        25 => wire__crate__proto__get_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        18 => wire__crate__proto__get_identity_command_get_type_message_impl(
+        26 => wire__crate__proto__get_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        19 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
+        27 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        21 => {
+        29 => {
             wire__crate__proto__identity_response_get_type_impl(port, ptr, rust_vec_len, data_len)
         }
-        22 => wire__crate__proto__identity_response_get_type_message_impl(
+        30 => wire__crate__proto__identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        23 => wire__crate__proto__import_identity_command_get_type_impl(
+        31 => wire__crate__proto__import_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        24 => wire__crate__proto__import_identity_command_get_type_message_impl(
+        32 => wire__crate__proto__import_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        25 => wire__crate__proto__import_identity_response_get_type_impl(
+        33 => wire__crate__proto__import_identity_response_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        26 => wire__crate__proto__import_identity_response_get_type_message_impl(
+        34 => wire__crate__proto__import_identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        27 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        28 => wire__crate__proto__message_response_get_type_message_impl(
+        35 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__proto__message_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
-        30 => wire__crate__proto__message_type_get_type_message_impl(
+        37 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
+        38 => wire__crate__proto__message_type_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        31 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        32 => {
+        39 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        40 => {
             wire__crate__proto__pairing_ack_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        33 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
-        34 => wire__crate__proto__pairing_initiate_get_type_message_impl(
+        41 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
+        42 => wire__crate__proto__pairing_initiate_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        35 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__proto__pairing_request_get_type_message_impl(
+        43 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
+        44 => wire__crate__proto__pairing_request_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        37 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
-        39 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        40 => {
+        45 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
+        46 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
+        47 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        48 => {
             wire__crate__proto__sb_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        41 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__proto__send_message_cmd_get_type_message_impl(
+        49 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        50 => wire__crate__proto__send_message_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        43 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__proto__unit_response_get_type_message_impl(
+        51 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        52 => wire__crate__proto__unit_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__proto__unit_response_into_remote_err_impl(
+        53 => wire__crate__proto__unit_response_into_remote_err_impl(
             port,
             ptr,
             rust_vec_len,
@@ -2731,7 +3186,9 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        3 => wire__crate__api__mdns__ServiceScanner_new_impl(ptr, rust_vec_len, data_len),
+        4 => wire__crate__Ipv4Addr_to_string_impl(ptr, rust_vec_len, data_len),
+        8 => wire__crate__Ipv6Addr_to_string_impl(ptr, rust_vec_len, data_len),
+        11 => wire__crate__api__mdns__ServiceScanner_new_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -2739,16 +3196,31 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<IpAddr> {
+impl flutter_rust_bridge::IntoDart for FrbWrapper<Ipv4Addr> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
             .into_dart()
     }
 }
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<IpAddr> {}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<Ipv4Addr> {}
 
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<IpAddr>> for IpAddr {
-    fn into_into_dart(self) -> FrbWrapper<IpAddr> {
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<Ipv4Addr>> for Ipv4Addr {
+    fn into_into_dart(self) -> FrbWrapper<Ipv4Addr> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<Ipv6Addr> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<Ipv6Addr> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<Ipv6Addr>> for Ipv6Addr {
+    fn into_into_dart(self) -> FrbWrapper<Ipv6Addr> {
         self.into()
     }
 }
@@ -3124,6 +3596,33 @@ impl flutter_rust_bridge::IntoIntoDart<crate::proto::ImportIdentityResponse>
 {
     fn into_into_dart(self) -> crate::proto::ImportIdentityResponse {
         self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::mirror::IpAddr> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self.0 {
+            crate::api::mirror::IpAddr::V4(field0) => {
+                [0.into_dart(), field0.into_into_dart().into_dart()].into_dart()
+            }
+            crate::api::mirror::IpAddr::V6(field0) => {
+                [1.into_dart(), field0.into_into_dart().into_dart()].into_dart()
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::mirror::IpAddr>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::mirror::IpAddr>>
+    for crate::api::mirror::IpAddr
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::mirror::IpAddr> {
+        self.into()
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3651,10 +4150,17 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
-impl SseEncode for IpAddr {
+impl SseEncode for Ipv4Addr {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
+impl SseEncode for Ipv6Addr {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
     }
 }
 
@@ -3707,7 +4213,20 @@ impl SseEncode for std::collections::HashMap<String, Vec<u8>> {
     }
 }
 
-impl SseEncode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>> {
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         let (ptr, size) = self.sse_encode_raw();
@@ -3901,7 +4420,7 @@ impl SseEncode for crate::api::mdns::HostRecord {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.name, serializer);
-        <Vec<IpAddr>>::sse_encode(self.addr, serializer);
+        <Vec<crate::api::mirror::IpAddr>>::sse_encode(self.addr, serializer);
         <u16>::sse_encode(self.port, serializer);
     }
 }
@@ -3964,6 +4483,25 @@ impl SseEncode for crate::proto::ImportIdentityResponse {
     }
 }
 
+impl SseEncode for crate::api::mirror::IpAddr {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        match self {
+            crate::api::mirror::IpAddr::V4(field0) => {
+                <i32>::sse_encode(0, serializer);
+                <Ipv4Addr>::sse_encode(field0, serializer);
+            }
+            crate::api::mirror::IpAddr::V6(field0) => {
+                <i32>::sse_encode(1, serializer);
+                <Ipv6Addr>::sse_encode(field0, serializer);
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+
 impl SseEncode for isize {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3971,16 +4509,6 @@ impl SseEncode for isize {
             .cursor
             .write_i64::<NativeEndian>(self as _)
             .unwrap();
-    }
-}
-
-impl SseEncode for Vec<IpAddr> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(self.len() as _, serializer);
-        for item in self {
-            <IpAddr>::sse_encode(item, serializer);
-        }
     }
 }
 
@@ -4010,6 +4538,16 @@ impl SseEncode for Vec<crate::api::mdns::HostRecord> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::mdns::HostRecord>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::mirror::IpAddr> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::mirror::IpAddr>::sse_encode(item, serializer);
         }
     }
 }
@@ -4584,17 +5122,31 @@ mod io {
     flutter_rust_bridge::frb_generated_boilerplate_io!();
 
     #[no_mangle]
-    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpAddr(
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv4Addr(
         ptr: *const std::ffi::c_void,
     ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>>::increment_strong_count(ptr as _);
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>::increment_strong_count(ptr as _);
     }
 
     #[no_mangle]
-    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpAddr(
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv4Addr(
         ptr: *const std::ffi::c_void,
     ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>>::decrement_strong_count(ptr as _);
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv6Addr(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv6Addr(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>::decrement_strong_count(ptr as _);
     }
 
     #[no_mangle]
@@ -4694,17 +5246,31 @@ mod web {
     flutter_rust_bridge::frb_generated_boilerplate_web!();
 
     #[wasm_bindgen]
-    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpAddr(
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv4Addr(
         ptr: *const std::ffi::c_void,
     ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>>::increment_strong_count(ptr as _);
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>::increment_strong_count(ptr as _);
     }
 
     #[wasm_bindgen]
-    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpAddr(
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv4Addr(
         ptr: *const std::ffi::c_void,
     ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<IpAddr>>::decrement_strong_count(ptr as _);
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv4Addr>>::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv6Addr(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerIpv6Addr(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>>::decrement_strong_count(ptr as _);
     }
 
     #[wasm_bindgen]
