@@ -1,4 +1,5 @@
-pub mod connection;
+#[cfg(feature = "flutter")]
+pub mod api;
 pub mod error;
 pub mod mdns;
 #[cfg(feature = "flutter")]

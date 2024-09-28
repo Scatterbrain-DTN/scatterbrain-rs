@@ -25,13 +25,14 @@
 
 // Section: imports
 
-use crate::api::connection::*;
+use crate::api::api::*;
 use crate::api::error::IntoRemoteErr;
 use crate::api::error::*;
 use crate::api::mdns::*;
 use crate::api::response::*;
 use crate::api::serialize::ToUuid;
 use crate::api::types::GetType;
+use crate::api::types::*;
 use crate::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
 use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
@@ -618,13 +619,13 @@ fn wire__crate__api__mdns__host_record_connect_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_that = <crate::api::mdns::HostRecord>::sse_decode(&mut deserializer);
+            let api_state = <crate::api::types::B64SessionState>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
-                transform_result_sse::<_, ()>(
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
-                        let output_ok = Result::<_, ()>::Ok(
-                            crate::api::mdns::HostRecord::connect(api_that).await,
-                        )?;
+                        let output_ok =
+                            crate::api::mdns::HostRecord::connect(api_that, api_state).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1864,13 +1865,36 @@ flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Ipv6Addr>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Lifetimeable<TraitFuture<'static>>>
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+        Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+    >
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+        Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+    >
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+        Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+    >
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+        Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+    >
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
-    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<ProtoStream<TcpStream>>>
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<String>>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
-    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<String>>
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ServiceScanner>
@@ -1883,6 +1907,18 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <String>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::anyhow::anyhow!("{}", inner);
+    }
+}
+
+impl SseDecode for RustAutoOpaqueMoi<Lifetimeable<TraitFuture<'static>>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Lifetimeable<TraitFuture<'static>>,
+            >,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_explicit_decode(inner);
     }
 }
 
@@ -1906,23 +1942,61 @@ impl SseDecode for Ipv6Addr {
     }
 }
 
-impl SseDecode for SbResult<()> {
+impl SseDecode
+    for Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <RustOpaqueMoi<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>,
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+            >,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
     }
 }
 
-impl SseDecode for SbResult<ProtoStream<TcpStream>> {
+impl SseDecode for Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <RustOpaqueMoi<
             flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
-                SbResult<ProtoStream<TcpStream>>,
+                Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
             >,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+            >,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+            >,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for SbResult<()> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
     }
@@ -1938,6 +2012,16 @@ impl SseDecode for SbResult<String> {
     }
 }
 
+impl SseDecode for SbSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
 impl SseDecode for ServiceScanner {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1945,6 +2029,16 @@ impl SseDecode for ServiceScanner {
             flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ServiceScanner>,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for chrono::NaiveDateTime {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i64>::sse_decode(deserializer);
+        return chrono::DateTime::from_timestamp_micros(inner)
+            .expect("invalid or out-of-range datetime")
+            .naive_utc();
     }
 }
 
@@ -1985,18 +2079,8 @@ impl SseDecode
 }
 
 impl SseDecode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>>
-{
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <usize>::sse_decode(deserializer);
-        return decode_rust_opaque_moi(inner);
-    }
-}
-
-impl SseDecode
     for RustOpaqueMoi<
-        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<ProtoStream<TcpStream>>>,
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Lifetimeable<TraitFuture<'static>>>,
     >
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -2007,7 +2091,83 @@ impl SseDecode
 }
 
 impl SseDecode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<String>>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2131,6 +2291,20 @@ impl SseDecode for crate::proto::ApiMessage {
             id: var_id,
             body: var_body,
             file_name: var_fileName,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::B64SessionState {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_secretkey = <String>::sse_decode(deserializer);
+        let mut var_pubkey = <String>::sse_decode(deserializer);
+        let mut var_remotekey = <Option<String>>::sse_decode(deserializer);
+        return crate::api::types::B64SessionState {
+            secretkey: var_secretkey,
+            pubkey: var_pubkey,
+            remotekey: var_remotekey,
         };
     }
 }
@@ -2374,6 +2548,18 @@ impl SseDecode for Vec<crate::api::mirror::IpAddr> {
     }
 }
 
+impl SseDecode for Vec<crate::api::response::Message> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::response::Message>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::proto::sb_event::NoBodyMessage> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2493,6 +2679,36 @@ impl SseDecode for crate::proto::import_identity_command::MaybeHandle {
     }
 }
 
+impl SseDecode for crate::api::response::Message {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_fromFingerprint = <Option<uuid::Uuid>>::sse_decode(deserializer);
+        let mut var_toFingerprint = <Option<uuid::Uuid>>::sse_decode(deserializer);
+        let mut var_application = <String>::sse_decode(deserializer);
+        let mut var_extension_ = <String>::sse_decode(deserializer);
+        let mut var_mime = <String>::sse_decode(deserializer);
+        let mut var_sendDate = <i64>::sse_decode(deserializer);
+        let mut var_receiveDate = <i64>::sse_decode(deserializer);
+        let mut var_isFile = <bool>::sse_decode(deserializer);
+        let mut var_id = <Option<uuid::Uuid>>::sse_decode(deserializer);
+        let mut var_body = <Vec<u8>>::sse_decode(deserializer);
+        let mut var_fileName = <String>::sse_decode(deserializer);
+        return crate::api::response::Message {
+            from_fingerprint: var_fromFingerprint,
+            to_fingerprint: var_toFingerprint,
+            application: var_application,
+            extension: var_extension_,
+            mime: var_mime,
+            send_date: var_sendDate,
+            receive_date: var_receiveDate,
+            is_file: var_isFile,
+            id: var_id,
+            body: var_body,
+            file_name: var_fileName,
+        };
+    }
+}
+
 impl SseDecode for crate::proto::MessageResponse {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2601,6 +2817,39 @@ impl SseDecode for crate::proto::sb_event::NoBodyMessage {
     }
 }
 
+impl SseDecode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<uuid::Uuid> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<uuid::Uuid>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<SbSession> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<SbSession>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::proto::ack::AckMaybeMessage> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2619,6 +2868,17 @@ impl SseDecode for Option<crate::proto::ApiHeader> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::proto::ApiHeader>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<i32>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -2745,6 +3005,17 @@ impl SseDecode for Option<crate::proto::get_messages_cmd::TimeSlice> {
             return Some(<crate::proto::get_messages_cmd::TimeSlice>::sse_decode(
                 deserializer,
             ));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u32>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -3051,124 +3322,124 @@ fn pde_ffi_dispatcher_primary_impl(
             wire__crate__api__mdns__ServiceScanner_stop_scan_impl(port, ptr, rust_vec_len, data_len)
         }
         13 => wire__crate__api__mdns__host_record_connect_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__proto__crypto_message_get_type_message_impl(
+        26 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
+        29 => wire__crate__proto__crypto_message_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        23 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        24 => {
+        30 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        31 => {
             wire__crate__proto__get_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        25 => wire__crate__proto__get_identity_command_get_type_impl(
+        32 => wire__crate__proto__get_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        26 => wire__crate__proto__get_identity_command_get_type_message_impl(
+        33 => wire__crate__proto__get_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        27 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        28 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
+        34 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        35 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => {
+        36 => {
             wire__crate__proto__identity_response_get_type_impl(port, ptr, rust_vec_len, data_len)
         }
-        30 => wire__crate__proto__identity_response_get_type_message_impl(
+        37 => wire__crate__proto__identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        31 => wire__crate__proto__import_identity_command_get_type_impl(
+        38 => wire__crate__proto__import_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        32 => wire__crate__proto__import_identity_command_get_type_message_impl(
+        39 => wire__crate__proto__import_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        33 => wire__crate__proto__import_identity_response_get_type_impl(
+        40 => wire__crate__proto__import_identity_response_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        34 => wire__crate__proto__import_identity_response_get_type_message_impl(
+        41 => wire__crate__proto__import_identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        35 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__proto__message_response_get_type_message_impl(
+        42 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__proto__message_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        37 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__proto__message_type_get_type_message_impl(
+        44 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__proto__message_type_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        39 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        40 => {
+        46 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        47 => {
             wire__crate__proto__pairing_ack_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        41 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__proto__pairing_initiate_get_type_message_impl(
+        48 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
+        49 => wire__crate__proto__pairing_initiate_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        43 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__proto__pairing_request_get_type_message_impl(
+        50 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
+        51 => wire__crate__proto__pairing_request_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
-        46 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
-        47 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        48 => {
+        52 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
+        53 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
+        54 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        55 => {
             wire__crate__proto__sb_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        49 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        50 => wire__crate__proto__send_message_cmd_get_type_message_impl(
+        56 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        57 => wire__crate__proto__send_message_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        51 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        52 => wire__crate__proto__unit_response_get_type_message_impl(
+        58 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        59 => wire__crate__proto__unit_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        53 => wire__crate__proto__unit_response_into_remote_err_impl(
+        60 => wire__crate__proto__unit_response_into_remote_err_impl(
             port,
             ptr,
             rust_vec_len,
@@ -3226,6 +3497,120 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<Ipv6Addr>> for Ipv6Addr {
 }
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart
+    for FrbWrapper<
+        Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+    >
+{
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<
+        Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+    >
+{
+}
+
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        FrbWrapper<
+            Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+        >,
+    > for Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>
+{
+    fn into_into_dart(
+        self,
+    ) -> FrbWrapper<
+        Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+    > {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart
+    for FrbWrapper<Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>>
+{
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>>
+{
+}
+
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        FrbWrapper<Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>>,
+    > for Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>
+{
+    fn into_into_dart(
+        self,
+    ) -> FrbWrapper<Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart
+    for FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>>
+{
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>>
+{
+}
+
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>>,
+    > for Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>
+{
+    fn into_into_dart(
+        self,
+    ) -> FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>>
+    {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart
+    for FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>>
+{
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>>
+{
+}
+
+impl
+    flutter_rust_bridge::IntoIntoDart<
+        FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>>,
+    > for Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>
+{
+    fn into_into_dart(
+        self,
+    ) -> FrbWrapper<Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>>
+    {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<SbResult<()>> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
@@ -3241,26 +3626,6 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<SbResult<()>>> for SbResult<()
 }
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<SbResult<ProtoStream<TcpStream>>> {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
-            .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for FrbWrapper<SbResult<ProtoStream<TcpStream>>>
-{
-}
-
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<SbResult<ProtoStream<TcpStream>>>>
-    for SbResult<ProtoStream<TcpStream>>
-{
-    fn into_into_dart(self) -> FrbWrapper<SbResult<ProtoStream<TcpStream>>> {
-        self.into()
-    }
-}
-
-// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<SbResult<String>> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
@@ -3271,6 +3636,21 @@ impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<
 
 impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<SbResult<String>>> for SbResult<String> {
     fn into_into_dart(self) -> FrbWrapper<SbResult<String>> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<SbSession> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<SbSession> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<SbSession>> for SbSession {
+    fn into_into_dart(self) -> FrbWrapper<SbSession> {
         self.into()
     }
 }
@@ -3389,6 +3769,28 @@ impl flutter_rust_bridge::IntoDart for crate::proto::ApiMessage {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::proto::ApiMessage {}
 impl flutter_rust_bridge::IntoIntoDart<crate::proto::ApiMessage> for crate::proto::ApiMessage {
     fn into_into_dart(self) -> crate::proto::ApiMessage {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::types::B64SessionState {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.secretkey.into_into_dart().into_dart(),
+            self.pubkey.into_into_dart().into_dart(),
+            self.remotekey.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::types::B64SessionState
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::types::B64SessionState>
+    for crate::api::types::B64SessionState
+{
+    fn into_into_dart(self) -> crate::api::types::B64SessionState {
         self
     }
 }
@@ -3721,6 +4123,33 @@ impl flutter_rust_bridge::IntoIntoDart<crate::proto::import_identity_command::Ma
     for crate::proto::import_identity_command::MaybeHandle
 {
     fn into_into_dart(self) -> crate::proto::import_identity_command::MaybeHandle {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::response::Message {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.from_fingerprint.into_into_dart().into_dart(),
+            self.to_fingerprint.into_into_dart().into_dart(),
+            self.application.into_into_dart().into_dart(),
+            self.extension.into_into_dart().into_dart(),
+            self.mime.into_into_dart().into_dart(),
+            self.send_date.into_into_dart().into_dart(),
+            self.receive_date.into_into_dart().into_dart(),
+            self.is_file.into_into_dart().into_dart(),
+            self.id.into_into_dart().into_dart(),
+            self.body.into_into_dart().into_dart(),
+            self.file_name.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::response::Message {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::response::Message>
+    for crate::api::response::Message
+{
+    fn into_into_dart(self) -> crate::api::response::Message {
         self
     }
 }
@@ -4150,6 +4579,20 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseEncode for RustAutoOpaqueMoi<Lifetimeable<TraitFuture<'static>>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Lifetimeable<TraitFuture<'static>>,
+            >,
+        >>::sse_encode(
+            flutter_rust_bridge::for_generated::rust_auto_opaque_explicit_encode(self),
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for Ipv4Addr {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4164,24 +4607,68 @@ impl SseEncode for Ipv6Addr {
     }
 }
 
-impl SseEncode for SbResult<()> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult < () >>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
-    }
-}
-
-impl SseEncode for SbResult<ProtoStream<TcpStream>> {
+impl SseEncode
+    for Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>
+{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <RustOpaqueMoi<
             flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
-                SbResult<ProtoStream<TcpStream>>,
+                Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
             >,
         >>::sse_encode(
             flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self),
             serializer,
         );
+    }
+}
+
+impl SseEncode for Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+            >,
+        >>::sse_encode(
+            flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self),
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+            >,
+        >>::sse_encode(
+            flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self),
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+            >,
+        >>::sse_encode(
+            flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self),
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for SbResult<()> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult < () >>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
     }
 }
 
@@ -4192,10 +4679,24 @@ impl SseEncode for SbResult<String> {
     }
 }
 
+impl SseEncode for SbSession {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
 impl SseEncode for ServiceScanner {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ServiceScanner>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
+impl SseEncode for chrono::NaiveDateTime {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i64>::sse_encode(self.and_utc().timestamp_micros(), serializer);
     }
 }
 
@@ -4236,19 +4737,8 @@ impl SseEncode
 }
 
 impl SseEncode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>>
-{
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        let (ptr, size) = self.sse_encode_raw();
-        <usize>::sse_encode(ptr, serializer);
-        <i32>::sse_encode(size, serializer);
-    }
-}
-
-impl SseEncode
     for RustOpaqueMoi<
-        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<ProtoStream<TcpStream>>>,
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Lifetimeable<TraitFuture<'static>>>,
     >
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4260,7 +4750,89 @@ impl SseEncode
 }
 
 impl SseEncode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<
+        flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+            Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+        >,
+    >
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<()>>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult<String>>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4356,6 +4928,15 @@ impl SseEncode for crate::proto::ApiMessage {
         <Option<crate::proto::ProtoUuid>>::sse_encode(self.id, serializer);
         <Vec<u8>>::sse_encode(self.body, serializer);
         <String>::sse_encode(self.file_name, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::B64SessionState {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.secretkey, serializer);
+        <String>::sse_encode(self.pubkey, serializer);
+        <Option<String>>::sse_encode(self.remotekey, serializer);
     }
 }
 
@@ -4552,6 +5133,16 @@ impl SseEncode for Vec<crate::api::mirror::IpAddr> {
     }
 }
 
+impl SseEncode for Vec<crate::api::response::Message> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::response::Message>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::proto::sb_event::NoBodyMessage> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4656,6 +5247,23 @@ impl SseEncode for crate::proto::import_identity_command::MaybeHandle {
     }
 }
 
+impl SseEncode for crate::api::response::Message {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<uuid::Uuid>>::sse_encode(self.from_fingerprint, serializer);
+        <Option<uuid::Uuid>>::sse_encode(self.to_fingerprint, serializer);
+        <String>::sse_encode(self.application, serializer);
+        <String>::sse_encode(self.extension, serializer);
+        <String>::sse_encode(self.mime, serializer);
+        <i64>::sse_encode(self.send_date, serializer);
+        <i64>::sse_encode(self.receive_date, serializer);
+        <bool>::sse_encode(self.is_file, serializer);
+        <Option<uuid::Uuid>>::sse_encode(self.id, serializer);
+        <Vec<u8>>::sse_encode(self.body, serializer);
+        <String>::sse_encode(self.file_name, serializer);
+    }
+}
+
 impl SseEncode for crate::proto::MessageResponse {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4744,6 +5352,36 @@ impl SseEncode for crate::proto::sb_event::NoBodyMessage {
     }
 }
 
+impl SseEncode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<uuid::Uuid> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <uuid::Uuid>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<SbSession> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <SbSession>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::proto::ack::AckMaybeMessage> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4760,6 +5398,16 @@ impl SseEncode for Option<crate::proto::ApiHeader> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::proto::ApiHeader>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<i32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <i32>::sse_encode(value, serializer);
         }
     }
 }
@@ -4860,6 +5508,16 @@ impl SseEncode for Option<crate::proto::get_messages_cmd::TimeSlice> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::proto::get_messages_cmd::TimeSlice>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u32>::sse_encode(value, serializer);
         }
     }
 }
@@ -5103,13 +5761,14 @@ mod io {
     // Section: imports
 
     use super::*;
-    use crate::api::connection::*;
+    use crate::api::api::*;
     use crate::api::error::IntoRemoteErr;
     use crate::api::error::*;
     use crate::api::mdns::*;
     use crate::api::response::*;
     use crate::api::serialize::ToUuid;
     use crate::api::types::GetType;
+    use crate::api::types::*;
     use crate::*;
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
@@ -5150,6 +5809,116 @@ mod io {
     }
 
     #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLifetimeableTraitFuturestatic(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Lifetimeable<TraitFuture<'static>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLifetimeableTraitFuturestatic(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Lifetimeable<TraitFuture<'static>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultImportIdentityStateSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultImportIdentityStateSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecMessageSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecMessageSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecSbEventSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecSbEventSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
     pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResult(
         ptr: *const std::ffi::c_void,
     ) {
@@ -5164,28 +5933,6 @@ mod io {
     }
 
     #[no_mangle]
-    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResultProtoStreamTcpStream(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
-                SbResult<ProtoStream<TcpStream>>,
-            >,
-        >::increment_strong_count(ptr as _);
-    }
-
-    #[no_mangle]
-    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResultProtoStreamTcpStream(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
-                SbResult<ProtoStream<TcpStream>>,
-            >,
-        >::decrement_strong_count(ptr as _);
-    }
-
-    #[no_mangle]
     pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResultString(
         ptr: *const std::ffi::c_void,
     ) {
@@ -5197,6 +5944,20 @@ mod io {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult < String >>>::decrement_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn frbgen_cry_app_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>::decrement_strong_count(ptr as _);
     }
 
     #[no_mangle]
@@ -5225,13 +5986,14 @@ mod web {
     // Section: imports
 
     use super::*;
-    use crate::api::connection::*;
+    use crate::api::api::*;
     use crate::api::error::IntoRemoteErr;
     use crate::api::error::*;
     use crate::api::mdns::*;
     use crate::api::response::*;
     use crate::api::serialize::ToUuid;
     use crate::api::types::GetType;
+    use crate::api::types::*;
     use crate::*;
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
@@ -5274,6 +6036,116 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLifetimeableTraitFuturestatic(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Lifetimeable<TraitFuture<'static>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerLifetimeableTraitFuturestatic(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Lifetimeable<TraitFuture<'static>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultImportIdentityStateSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultImportIdentityStateSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecMessageSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecMessageSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecSbEventSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+            >,
+        >::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPinBoxdynFutureOutputSbResultVecSbEventSendSynclife0(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
+                Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>>,
+            >,
+        >::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
     pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResult(
         ptr: *const std::ffi::c_void,
     ) {
@@ -5288,28 +6160,6 @@ mod web {
     }
 
     #[wasm_bindgen]
-    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResultProtoStreamTcpStream(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
-                SbResult<ProtoStream<TcpStream>>,
-            >,
-        >::increment_strong_count(ptr as _);
-    }
-
-    #[wasm_bindgen]
-    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResultProtoStreamTcpStream(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<
-                SbResult<ProtoStream<TcpStream>>,
-            >,
-        >::decrement_strong_count(ptr as _);
-    }
-
-    #[wasm_bindgen]
     pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbResultString(
         ptr: *const std::ffi::c_void,
     ) {
@@ -5321,6 +6171,20 @@ mod web {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbResult < String >>>::decrement_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>::increment_strong_count(ptr as _);
+    }
+
+    #[wasm_bindgen]
+    pub fn rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerSbSession(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SbSession>>::decrement_strong_count(ptr as _);
     }
 
     #[wasm_bindgen]

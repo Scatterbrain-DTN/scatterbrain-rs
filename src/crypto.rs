@@ -17,7 +17,7 @@ use crate::{
     error::{Error, SbResult},
     proto::{ApiHeader, CryptoMessage},
     serialize::{ProtoStream, ToUuid},
-    types::GetType,
+    types::{B64SessionState, GetType},
 };
 
 pub trait EncodeB64<T>
@@ -82,13 +82,6 @@ impl EncodeB64<B64SessionState> for SessionState {
                 .transpose()?,
         })
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct B64SessionState {
-    pub secretkey: String,
-    pub pubkey: String,
-    pub remotekey: Option<String>,
 }
 
 impl Default for SessionState {
