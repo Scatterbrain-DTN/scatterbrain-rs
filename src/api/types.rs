@@ -20,7 +20,7 @@ pub use crate::proto::{
 };
 pub type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
 
-use super::api::SbResult;
+use super::error::SbResult;
 
 pub trait SessionTrait {
     fn get_identity<'a>(&'a mut self, id: Option<Uuid>) -> DartFuture<'a, SbResult<Vec<Identity>>>;

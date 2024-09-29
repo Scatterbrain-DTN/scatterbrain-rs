@@ -44,7 +44,7 @@ impl From<SocketAddr> for HostRecord {
 
 impl HostRecord {
     #[cfg(not(feature = "flutter"))]
-    async fn connect(self) -> SbResult<ProtoStream<TcpStream>> {
+    pub async fn connect(self) -> SbResult<ProtoStream<TcpStream>> {
         self.connect_impl().await
     }
 
