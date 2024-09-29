@@ -7,7 +7,8 @@ use sodiumoxide::crypto::{
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use uuid::Uuid;
 
-pub use crate::types::{SessionTrait, TraitFuture};
+use crate::types::DartFuture;
+pub use crate::types::SessionTrait;
 pub use crate::{
     crypto::{CryptoMessageWrapper, Session, SessionState},
     error::{Error, IntoRemoteErr, SbResult},
@@ -64,19 +65,7 @@ where
     A: Unpin + Send + AsyncReadExt + AsyncWriteExt + Sync,
     Self: Sized,
 {
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn get_identity<'life0>(&'life0 mut self, id: Option<Uuid>) -> TraitFuture<'life0> {
+    fn get_identity<'a>(&'a mut self, id: Option<Uuid>) -> DartFuture<'a, SbResult<Vec<Identity>>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<Vec<Identity>>> {
                 #[allow(unreachable_code)]
@@ -98,23 +87,12 @@ where
             __ret
         })
     }
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn get_events<'life0>(
-        &'life0 mut self,
+
+    fn get_events<'a>(
+        &'a mut self,
         block: bool,
         count: Option<u32>,
-    ) -> Pin<Box<dyn Future<Output = SbResult<Vec<SbEvent>>> + Send + Sync + 'life0>> {
+    ) -> DartFuture<'a, SbResult<Vec<SbEvent>>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<Vec<SbEvent>>> {
                 #[allow(unreachable_code)]
@@ -137,23 +115,12 @@ where
             __ret
         })
     }
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn get_messages<'life0>(
-        &'life0 mut self,
+
+    fn get_messages<'a>(
+        &'a mut self,
         application: String,
         limit: Option<i32>,
-    ) -> Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>> {
+    ) -> DartFuture<'a, SbResult<Vec<Message>>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<Vec<Message>>> {
                 #[allow(unreachable_code)]
@@ -177,23 +144,12 @@ where
             __ret
         })
     }
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn send_messages<'life0>(
-        &'life0 mut self,
+
+    fn send_messages<'a>(
+        &'a mut self,
         messages: Vec<Message>,
         sign_identity: Option<Uuid>,
-    ) -> Pin<Box<dyn Future<Output = SbResult<()>> + Send + Sync + 'life0>> {
+    ) -> DartFuture<'a, SbResult<()>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<()>> {
                 #[allow(unreachable_code)]
@@ -217,22 +173,11 @@ where
             __ret
         })
     }
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn initiate_identity_import<'life0>(
-        &'life0 mut self,
+
+    fn initiate_identity_import<'a>(
+        &'a mut self,
         id: Option<Uuid>,
-    ) -> Pin<Box<dyn Future<Output = SbResult<ImportIdentityState>> + Send + Sync + 'life0>> {
+    ) -> DartFuture<'a, SbResult<ImportIdentityState>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<ImportIdentityState>> {
                 #[allow(unreachable_code)]
@@ -264,25 +209,14 @@ where
             __ret
         })
     }
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn get_messages_send_date<'life0>(
-        &'life0 mut self,
+
+    fn get_messages_send_date<'a>(
+        &'a mut self,
         application: String,
         limit: Option<i32>,
         start_date: NaiveDateTime,
         end_date: NaiveDateTime,
-    ) -> Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>> {
+    ) -> DartFuture<'a, SbResult<Vec<Message>>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<Vec<Message>>> {
                 #[allow(unreachable_code)]
@@ -311,25 +245,14 @@ where
             __ret
         })
     }
-    #[allow(
-        elided_named_lifetimes,
-        clippy::async_yields_async,
-        clippy::diverging_sub_expression,
-        clippy::let_unit_value,
-        clippy::needless_arbitrary_self_type,
-        clippy::no_effect_underscore_binding,
-        clippy::shadow_same,
-        clippy::type_complexity,
-        clippy::type_repetition_in_bounds,
-        clippy::used_underscore_binding
-    )]
-    fn get_messages_recieve_date<'life0>(
-        &'life0 mut self,
+
+    fn get_messages_recieve_date<'a>(
+        &'a mut self,
         application: String,
         limit: Option<i32>,
         start_date: NaiveDateTime,
         end_date: NaiveDateTime,
-    ) -> Pin<Box<dyn Future<Output = SbResult<Vec<Message>>> + Send + Sync + 'life0>> {
+    ) -> DartFuture<'a, SbResult<Vec<Message>>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<Vec<Message>>> {
                 #[allow(unreachable_code)]
@@ -403,7 +326,7 @@ where
         }
     }
 
-    pub async fn pair<'a, F, Fut>(
+    pub async fn pair<F, Fut>(
         mut self,
         state: SessionState,
         app_name: String,
@@ -411,9 +334,7 @@ where
     ) -> SbResult<Session<A>>
     where
         F: FnOnce(Mnemonic) -> Fut,
-        Fut: Future<
-            Output = std::result::Result<bool, Box<dyn std::error::Error + Send + Sync + 'life0>>,
-        >,
+        Fut: Future<Output = std::result::Result<bool, Box<dyn std::error::Error + Send + Sync>>>,
     {
         let i = PairingInitiate {
             pubkey: state.pubkey.0.iter().copied().collect(),
