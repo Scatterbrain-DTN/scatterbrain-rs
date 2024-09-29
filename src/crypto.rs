@@ -17,7 +17,7 @@ use crate::{
     error::{Error, SbResult},
     proto::{ApiHeader, CryptoMessage},
     serialize::{ProtoStream, ToUuid},
-    types::{B64SessionState, GetType},
+    types::{CryptoConfig, GetType},
 };
 
 pub trait EncodeB64<T>
@@ -35,21 +35,21 @@ pub struct SessionState {
     pub remotekey: Option<PublicKey>,
 }
 
-impl EncodeB64<B64SessionState> for SessionState {
-    fn b64(&self) -> B64SessionState {
+impl EncodeB64<CryptoConfig> for SessionState {
+    fn b64(&self) -> CryptoConfig {
         let secretkey = base64::encode(&self.secretkey.0, base64::Variant::UrlSafe);
         let pubkey = base64::encode(&self.pubkey.0, base64::Variant::UrlSafe);
         let remotekey = self
             .remotekey
             .map(|v| base64::encode(&v.0, base64::Variant::UrlSafe));
-        B64SessionState {
+        CryptoConfig {
             secretkey,
             pubkey,
             remotekey,
         }
     }
 
-    fn from_b64(val: B64SessionState) -> SbResult<Self> {
+    fn from_b64(val: CryptoConfig) -> SbResult<Self> {
         let secretkey = base64::decode(&val.secretkey, base64::Variant::UrlSafe)
             .map_err(|_| Error::Crypto("failed to parse base64".to_owned()))?;
         let pubkey = base64::decode(&val.pubkey, base64::Variant::UrlSafe)

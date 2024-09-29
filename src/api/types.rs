@@ -7,7 +7,7 @@ pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 pub use std::pin::Pin;
 use uuid::Uuid;
 #[derive(Serialize, Deserialize)]
-pub struct B64SessionState {
+pub struct CryptoConfig {
     pub secretkey: String,
     pub pubkey: String,
     pub remotekey: Option<String>,

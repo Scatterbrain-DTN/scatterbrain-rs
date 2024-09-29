@@ -1,15 +1,14 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::DerefMut;
 use std::sync::Arc;
 
 use chrono::NaiveDateTime;
-use flutter_rust_bridge::frb;
-use futures::FutureExt;
+use flutter_rust_bridge::DartFnFuture;
 pub use tokio::sync::RwLock;
 use tokio::sync::RwLockWriteGuard;
 use uuid::Uuid;
 
 pub use super::types::DartFuture;
-pub use super::types::{B64SessionState, ImportIdentityState, SessionTrait};
+pub use super::types::{CryptoConfig, ImportIdentityState, SessionTrait};
 pub use super::{error::SbResult, mdns::HostRecord};
 use crate::crypto::EncodeB64;
 pub use crate::crypto::SessionState;
@@ -20,7 +19,7 @@ pub struct SbSession(SbSessionInner);
 pub use async_trait::async_trait;
 
 impl HostRecord {
-    pub async fn connect(self, state: B64SessionState) -> anyhow::Result<Option<SbSession>> {
+    pub async fn connect(self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>> {
         let proto = self.connect_impl().await?;
 
         if let Some(session) = proto.key_exchange(SessionState::from_b64(state)?).await? {
@@ -28,6 +27,22 @@ impl HostRecord {
         } else {
             Ok(None)
         }
+    }
+
+    pub async fn pair(
+        self,
+        state: CryptoConfig,
+        app_name: String,
+        cb: impl FnOnce(Vec<String>) -> DartFnFuture<bool>,
+    ) -> anyhow::Result<SbSession> {
+        let proto = self.connect_impl().await?;
+        let session = proto
+            .pair(SessionState::from_b64(state)?, app_name, |mn| async move {
+                Ok(cb(mn.word_iter().map(|v| v.to_owned()).collect()).await)
+            })
+            .await?;
+
+        Ok(SbSession(Arc::new(RwLock::new(session))))
     }
 }
 

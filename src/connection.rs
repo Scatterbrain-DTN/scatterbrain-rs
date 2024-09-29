@@ -28,7 +28,7 @@ pub use crate::{
     serialize::{ProtoStream, ToUuid},
     types::ImportIdentityState,
 };
-use std::pin::Pin;
+
 pub use std::{future::Future, net::SocketAddr};
 pub use tokio::net::TcpStream;
 

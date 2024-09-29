@@ -46,7 +46,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.4.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1627769666;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1893698878;
 
 // Section: executor
 
@@ -1055,13 +1055,60 @@ fn wire__crate__api__mdns__host_record_connect_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_that = <crate::api::mdns::HostRecord>::sse_decode(&mut deserializer);
-            let api_state = <crate::api::types::B64SessionState>::sse_decode(&mut deserializer);
+            let api_state = <crate::api::types::CryptoConfig>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || async move {
                         let output_ok =
                             crate::api::mdns::HostRecord::connect(api_that, api_state).await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__mdns__host_record_pair_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "host_record_pair",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <crate::api::mdns::HostRecord>::sse_decode(&mut deserializer);
+            let api_state = <crate::api::types::CryptoConfig>::sse_decode(&mut deserializer);
+            let api_app_name = <String>::sse_decode(&mut deserializer);
+            let api_cb = decode_DartFn_Inputs_list_String_Output_bool_AnyhowException(
+                <flutter_rust_bridge::DartOpaque>::sse_decode(&mut deserializer),
+            );
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || async move {
+                        let output_ok = crate::api::mdns::HostRecord::pair(
+                            api_that,
+                            api_state,
+                            api_app_name,
+                            api_cb,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2259,6 +2306,38 @@ const _: fn() = || match None::<crate::api::mirror::IpAddr>.unwrap() {
 
 // Section: related_funcs
 
+fn decode_DartFn_Inputs_list_String_Output_bool_AnyhowException(
+    dart_opaque: flutter_rust_bridge::DartOpaque,
+) -> impl Fn(Vec<String>) -> flutter_rust_bridge::DartFnFuture<bool> {
+    use flutter_rust_bridge::IntoDart;
+
+    async fn body(dart_opaque: flutter_rust_bridge::DartOpaque, arg0: Vec<String>) -> bool {
+        let args = vec![arg0.into_into_dart().into_dart()];
+        let message = FLUTTER_RUST_BRIDGE_HANDLER
+            .dart_fn_invoke(dart_opaque, args)
+            .await;
+
+        let mut deserializer = flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+        let action = deserializer.cursor.read_u8().unwrap();
+        let ans = match action {
+            0 => std::result::Result::Ok(<bool>::sse_decode(&mut deserializer)),
+            1 => std::result::Result::Err(
+                <flutter_rust_bridge::for_generated::anyhow::Error>::sse_decode(&mut deserializer),
+            ),
+            _ => unreachable!(),
+        };
+        deserializer.end();
+        let ans = ans.expect("Dart throws exception but Rust side assume it is not failable");
+        ans
+    }
+
+    move |arg0: Vec<String>| {
+        flutter_rust_bridge::for_generated::convert_into_dart_fn_future(body(
+            dart_opaque.clone(),
+            arg0,
+        ))
+    }
+}
 fn decode_DartFn_Inputs_list_host_record_Output_unit_AnyhowException(
     dart_opaque: flutter_rust_bridge::DartOpaque,
 ) -> impl Fn(Vec<crate::api::mdns::HostRecord>) -> flutter_rust_bridge::DartFnFuture<()> {
@@ -2735,24 +2814,24 @@ impl SseDecode for crate::proto::ApiMessage {
     }
 }
 
-impl SseDecode for crate::api::types::B64SessionState {
+impl SseDecode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::api::types::CryptoConfig {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_secretkey = <String>::sse_decode(deserializer);
         let mut var_pubkey = <String>::sse_decode(deserializer);
         let mut var_remotekey = <Option<String>>::sse_decode(deserializer);
-        return crate::api::types::B64SessionState {
+        return crate::api::types::CryptoConfig {
             secretkey: var_secretkey,
             pubkey: var_pubkey,
             remotekey: var_remotekey,
         };
-    }
-}
-
-impl SseDecode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u8().unwrap() != 0
     }
 }
 
@@ -2977,6 +3056,18 @@ impl SseDecode for isize {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_i64::<NativeEndian>().unwrap() as _
+    }
+}
+
+impl SseDecode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
     }
 }
 
@@ -3838,124 +3929,125 @@ fn pde_ffi_dispatcher_primary_impl(
             wire__crate__api__mdns__ServiceScanner_stop_scan_impl(port, ptr, rust_vec_len, data_len)
         }
         20 => wire__crate__api__mdns__host_record_connect_impl(port, ptr, rust_vec_len, data_len),
-        33 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        34 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__proto__crypto_message_get_type_message_impl(
+        21 => wire__crate__api__mdns__host_record_pair_impl(port, ptr, rust_vec_len, data_len),
+        34 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        35 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
+        37 => wire__crate__proto__crypto_message_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        37 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        38 => {
+        38 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        39 => {
             wire__crate__proto__get_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        39 => wire__crate__proto__get_identity_command_get_type_impl(
+        40 => wire__crate__proto__get_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        40 => wire__crate__proto__get_identity_command_get_type_message_impl(
+        41 => wire__crate__proto__get_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        41 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
+        42 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        43 => {
+        44 => {
             wire__crate__proto__identity_response_get_type_impl(port, ptr, rust_vec_len, data_len)
         }
-        44 => wire__crate__proto__identity_response_get_type_message_impl(
+        45 => wire__crate__proto__identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__proto__import_identity_command_get_type_impl(
+        46 => wire__crate__proto__import_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        46 => wire__crate__proto__import_identity_command_get_type_message_impl(
+        47 => wire__crate__proto__import_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        47 => wire__crate__proto__import_identity_response_get_type_impl(
+        48 => wire__crate__proto__import_identity_response_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        48 => wire__crate__proto__import_identity_response_get_type_message_impl(
+        49 => wire__crate__proto__import_identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        49 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        50 => wire__crate__proto__message_response_get_type_message_impl(
+        50 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        51 => wire__crate__proto__message_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        51 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
-        52 => wire__crate__proto__message_type_get_type_message_impl(
+        52 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
+        53 => wire__crate__proto__message_type_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        53 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        54 => {
+        54 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        55 => {
             wire__crate__proto__pairing_ack_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        55 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
-        56 => wire__crate__proto__pairing_initiate_get_type_message_impl(
+        56 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
+        57 => wire__crate__proto__pairing_initiate_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        57 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
-        58 => wire__crate__proto__pairing_request_get_type_message_impl(
+        58 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
+        59 => wire__crate__proto__pairing_request_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        59 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
-        60 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
-        61 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        62 => {
+        60 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
+        61 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
+        62 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        63 => {
             wire__crate__proto__sb_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        63 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        64 => wire__crate__proto__send_message_cmd_get_type_message_impl(
+        64 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        65 => wire__crate__proto__send_message_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        65 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        66 => wire__crate__proto__unit_response_get_type_message_impl(
+        66 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        67 => wire__crate__proto__unit_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        67 => wire__crate__proto__unit_response_into_remote_err_impl(
+        68 => wire__crate__proto__unit_response_into_remote_err_impl(
             port,
             ptr,
             rust_vec_len,
@@ -4175,7 +4267,7 @@ impl flutter_rust_bridge::IntoIntoDart<crate::proto::ApiMessage> for crate::prot
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::types::B64SessionState {
+impl flutter_rust_bridge::IntoDart for crate::api::types::CryptoConfig {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.secretkey.into_into_dart().into_dart(),
@@ -4186,13 +4278,13 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::B64SessionState {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::types::B64SessionState
+    for crate::api::types::CryptoConfig
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::types::B64SessionState>
-    for crate::api::types::B64SessionState
+impl flutter_rust_bridge::IntoIntoDart<crate::api::types::CryptoConfig>
+    for crate::api::types::CryptoConfig
 {
-    fn into_into_dart(self) -> crate::api::types::B64SessionState {
+    fn into_into_dart(self) -> crate::api::types::CryptoConfig {
         self
     }
 }
@@ -5387,19 +5479,19 @@ impl SseEncode for crate::proto::ApiMessage {
     }
 }
 
-impl SseEncode for crate::api::types::B64SessionState {
+impl SseEncode for bool {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::types::CryptoConfig {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.secretkey, serializer);
         <String>::sse_encode(self.pubkey, serializer);
         <Option<String>>::sse_encode(self.remotekey, serializer);
-    }
-}
-
-impl SseEncode for bool {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u8(self as _).unwrap();
     }
 }
 
@@ -5577,6 +5669,16 @@ impl SseEncode for isize {
             .cursor
             .write_i64::<NativeEndian>(self as _)
             .unwrap();
+    }
+}
+
+impl SseEncode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <String>::sse_encode(item, serializer);
+        }
     }
 }
 
