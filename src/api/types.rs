@@ -1,8 +1,10 @@
+use crate::proto::PairingSynAck;
 pub use crate::proto::SbEvent;
 pub use crate::response::{Identity, Message};
 use chrono::NaiveDateTime;
 pub use core::future::Future;
 pub use serde::{Deserialize, Serialize};
+use sodiumoxide::crypto::kx::{PublicKey, SessionKey};
 pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 pub use std::pin::Pin;
 use uuid::Uuid;
@@ -21,6 +23,16 @@ pub use crate::proto::{
 pub type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
 
 use super::error::SbResult;
+use crate::crypto::SessionState;
+
+pub struct PairingSession {
+    pub coin: Vec<String>,
+    pub state: SessionState,
+    pub session: Uuid,
+    pub tx: SessionKey,
+    pub rx: SessionKey,
+    pub remotekey: PublicKey,
+}
 
 pub trait SessionTrait {
     fn get_identity<'a>(&'a mut self, id: Option<Uuid>) -> DartFuture<'a, SbResult<Vec<Identity>>>;
@@ -167,6 +179,12 @@ impl GetType for GetEvents {
 impl GetType for SbEvents {
     fn get_type() -> MessageType {
         MessageType::DesktopEvents
+    }
+}
+
+impl GetType for PairingSynAck {
+    fn get_type() -> MessageType {
+        MessageType::PairingSynack
     }
 }
 

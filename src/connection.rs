@@ -7,7 +7,6 @@ use sodiumoxide::crypto::{
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use uuid::Uuid;
 
-use crate::types::DartFuture;
 pub use crate::types::SessionTrait;
 pub use crate::{
     crypto::{CryptoMessageWrapper, Session, SessionState},
@@ -27,6 +26,10 @@ pub use crate::{
     response::{Identity, Message},
     serialize::{ProtoStream, ToUuid},
     types::ImportIdentityState,
+};
+use crate::{
+    proto::PairingSynAck,
+    types::{DartFuture, PairingSession},
 };
 
 pub use std::{future::Future, net::SocketAddr};
@@ -326,6 +329,104 @@ where
         }
     }
 
+    pub async fn try_pair<F, Fut>(
+        &mut self,
+        state: SessionState,
+        app_name: String,
+    ) -> SbResult<Option<PairingSession>> {
+        let i = PairingInitiate {
+            pubkey: state.pubkey.0.iter().copied().collect(),
+        };
+        self.write_message(&i).await?;
+
+        let v: PairingAck = self.read_message().await?;
+        let session_id = v
+            .session
+            .ok_or_else(|| Error::CorruptHeader)?
+            .session
+            .ok_or_else(|| Error::CorruptHeader)?;
+        let sp = PublicKey(
+            v.pubkey
+                .try_into()
+                .map_err(|_| Error::Crypto("pubkey wrong size".to_owned()))?,
+        );
+
+        let (rx, tx) = client_session_keys(&state.pubkey, &state.secretkey, &sp).unwrap();
+        if let Some(remotekey) = state.remotekey {
+            if remotekey.0 != sp.0 {
+                return Err(Error::MitmDetected);
+            }
+            Ok(None)
+        } else {
+            let mut pr = PairingRequest::default();
+            pr.name = app_name;
+            pr.session = v.session;
+            let pr = CryptoMessageWrapper::new_message(&pr, &rx)?;
+            self.write_message(pr.message()).await?;
+
+            let fingerprint =
+                generichash::hash(&i.pubkey, Some(generichash::DIGEST_MIN), None).unwrap();
+            let words = Mnemonic::from_entropy(fingerprint.as_ref())?;
+
+            let v: CryptoMessage = self.read_message().await?;
+
+            let v = CryptoMessageWrapper::new(v);
+
+            let v: Ack = v.decrypt(&tx)?;
+
+            log::info!("got ack {}", v.success);
+
+            if !v.success {
+                return Err(Error::PairingFailed);
+            }
+
+            Ok(Some(PairingSession {
+                session: session_id.as_uuid(),
+                rx,
+                tx,
+                state: SessionState {
+                    secretkey: state.secretkey,
+                    pubkey: state.pubkey,
+                    remotekey: Some(sp),
+                },
+                coin: words.word_iter().map(|v| v.to_owned()).collect(),
+                remotekey: sp,
+            }))
+        }
+    }
+
+    pub async fn try_pair_confirm(
+        mut self,
+        session: PairingSession,
+        accept: bool,
+    ) -> SbResult<Session<A>> {
+        if accept {
+            let mut ack = PairingSynAck::default();
+            ack.success = true;
+            self.write_message(CryptoMessageWrapper::new_message(&ack, &session.rx)?.message())
+                .await?;
+
+            Ok(Session {
+                session: session.session,
+                rx: session.rx,
+                tx: session.tx,
+                state: SessionState {
+                    secretkey: session.state.secretkey,
+                    pubkey: session.state.pubkey,
+                    remotekey: Some(session.remotekey),
+                },
+                stream: self,
+            })
+        } else {
+            let mut ack = PairingSynAck::default();
+            ack.success = false;
+            ack.message = "pairing request rejected".to_owned();
+            self.write_message(CryptoMessageWrapper::new_message(&ack, &session.rx)?.message())
+                .await?;
+            return Err(Error::PairingFailed);
+        }
+    }
+
     pub async fn pair<F, Fut>(
         mut self,
         state: SessionState,
@@ -379,18 +480,28 @@ where
             let fingerprint =
                 generichash::hash(&i.pubkey, Some(generichash::DIGEST_MIN), None).unwrap();
             let words = Mnemonic::from_entropy(fingerprint.as_ref())?;
-            cb(words).await?; // I hate HRTBs
+            let confirmed = cb(words).await?; // I hate HRTBs
+
             let v: CryptoMessage = self.read_message().await?;
 
             let v = CryptoMessageWrapper::new(v);
 
-            let v: Ack = v.decrypt(&tx)?;
+            let ack: Ack = v.decrypt(&tx)?;
 
-            log::info!("got ack {}", v.success);
+            log::info!("got ack {}", ack.success);
 
-            if !v.success {
+            let mut synack = PairingSynAck::default();
+            if !ack.success || !confirmed {
+                synack.success = false;
+                synack.message = "Pairing request rejected".to_owned();
+                self.write_message(CryptoMessageWrapper::new_message(&ack, &rx)?.message())
+                    .await?;
                 return Err(Error::PairingFailed);
             }
+
+            synack.success = true;
+            self.write_message(CryptoMessageWrapper::new_message(&synack, &rx)?.message())
+                .await?;
 
             Ok(Session {
                 session: session_id.as_uuid(),
