@@ -1,5 +1,10 @@
+#[cfg(feature = "flutter")]
+use crate::types::SbSession;
 use bip39::Mnemonic;
 use chrono::NaiveDateTime;
+#[cfg(feature = "flutter")]
+use flutter_rust_bridge::DartFnFuture;
+
 use sodiumoxide::crypto::{
     generichash::{self},
     kx::{client_session_keys, PublicKey},
@@ -7,7 +12,6 @@ use sodiumoxide::crypto::{
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use uuid::Uuid;
 
-pub use crate::types::SessionTrait;
 pub use crate::{
     crypto::{CryptoMessageWrapper, Session, SessionState},
     error::{Error, IntoRemoteErr, SbResult},
@@ -27,13 +31,66 @@ pub use crate::{
     serialize::{ProtoStream, ToUuid},
     types::ImportIdentityState,
 };
-use crate::{
-    proto::PairingSynAck,
-    types::{DartFuture, PairingSession},
-};
+use crate::{proto::PairingSynAck, types::DartFuture};
 
 pub use std::{future::Future, net::SocketAddr};
 pub use tokio::net::TcpStream;
+
+pub(crate) trait SessionTrait {
+    fn get_identity<'a>(&'a mut self, id: Option<Uuid>) -> DartFuture<'a, SbResult<Vec<Identity>>>;
+
+    #[cfg(feature = "flutter")]
+    fn set_on_connect(
+        &mut self,
+        on_connect: Box<dyn Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static>,
+    );
+
+    #[cfg(feature = "flutter")]
+    fn on_connect<'a>(
+        &'a self,
+    ) -> Option<&'a Box<dyn Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static>>;
+
+    fn get_events<'a>(
+        &'a mut self,
+        block: bool,
+        count: Option<u32>,
+    ) -> DartFuture<'a, SbResult<Vec<SbEvent>>>;
+
+    fn get_messages<'a>(
+        &'a mut self,
+        application: String,
+        limit: Option<i32>,
+    ) -> DartFuture<'a, SbResult<Vec<Message>>>;
+
+    fn send_messages<'a>(
+        &'a mut self,
+        messages: Vec<Message>,
+        sign_identity: Option<Uuid>,
+    ) -> DartFuture<'a, SbResult<()>>;
+
+    fn initiate_identity_import<'a>(
+        &'a mut self,
+        id: Option<Uuid>,
+    ) -> DartFuture<'a, SbResult<ImportIdentityState>>;
+
+    fn get_messages_send_date<'a>(
+        &'a mut self,
+        application: String,
+        limit: Option<i32>,
+        start_date: NaiveDateTime,
+        end_date: NaiveDateTime,
+    ) -> DartFuture<'a, SbResult<Vec<Message>>>;
+
+    fn get_messages_recieve_date<'a>(
+        &'a mut self,
+        application: String,
+        limit: Option<i32>,
+        start_date: NaiveDateTime,
+        end_date: NaiveDateTime,
+    ) -> DartFuture<'a, SbResult<Vec<Message>>>;
+
+    fn is_closed<'a>(&'a mut self) -> DartFuture<'a, SbResult<bool>>;
+}
 
 impl From<SocketAddr> for HostRecord {
     fn from(value: SocketAddr) -> Self {
@@ -68,6 +125,22 @@ where
     A: Unpin + Send + AsyncReadExt + AsyncWriteExt + Sync,
     Self: Sized,
 {
+    #[cfg(feature = "flutter")]
+    fn set_on_connect(
+        &mut self,
+        on_connect: Box<dyn Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static>,
+    ) {
+        self.stream.on_connect = Some(Box::new(on_connect));
+    }
+
+    #[cfg(feature = "flutter")]
+    fn on_connect<'a>(
+        &'a self,
+    ) -> Option<&'a Box<dyn Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static>>
+    {
+        self.stream.on_connect.as_ref()
+    }
+
     fn get_identity<'a>(&'a mut self, id: Option<Uuid>) -> DartFuture<'a, SbResult<Vec<Identity>>> {
         Box::pin(async move {
             if let Option::Some(__ret) = Option::None::<SbResult<Vec<Identity>>> {
@@ -89,6 +162,10 @@ where
             #[allow(unreachable_code)]
             __ret
         })
+    }
+
+    fn is_closed<'a>(&'a mut self) -> DartFuture<'a, SbResult<bool>> {
+        Box::pin(async move { Ok(self.is_disconnected()) })
     }
 
     fn get_events<'a>(
@@ -288,7 +365,7 @@ where
 
 impl<A> ProtoStream<A>
 where
-    A: Unpin + Send + AsyncReadExt + AsyncWriteExt,
+    A: Unpin + Send + AsyncReadExt + AsyncWriteExt + Send + Sync + 'static,
 {
     pub async fn key_exchange(mut self, state: SessionState) -> SbResult<Option<Session<A>>> {
         let i = PairingInitiate {
@@ -326,104 +403,6 @@ where
             }))
         } else {
             Ok(None)
-        }
-    }
-
-    pub async fn try_pair<F, Fut>(
-        &mut self,
-        state: SessionState,
-        app_name: String,
-    ) -> SbResult<Option<PairingSession>> {
-        let i = PairingInitiate {
-            pubkey: state.pubkey.0.iter().copied().collect(),
-        };
-        self.write_message(&i).await?;
-
-        let v: PairingAck = self.read_message().await?;
-        let session_id = v
-            .session
-            .ok_or_else(|| Error::CorruptHeader)?
-            .session
-            .ok_or_else(|| Error::CorruptHeader)?;
-        let sp = PublicKey(
-            v.pubkey
-                .try_into()
-                .map_err(|_| Error::Crypto("pubkey wrong size".to_owned()))?,
-        );
-
-        let (rx, tx) = client_session_keys(&state.pubkey, &state.secretkey, &sp).unwrap();
-        if let Some(remotekey) = state.remotekey {
-            if remotekey.0 != sp.0 {
-                return Err(Error::MitmDetected);
-            }
-            Ok(None)
-        } else {
-            let mut pr = PairingRequest::default();
-            pr.name = app_name;
-            pr.session = v.session;
-            let pr = CryptoMessageWrapper::new_message(&pr, &rx)?;
-            self.write_message(pr.message()).await?;
-
-            let fingerprint =
-                generichash::hash(&i.pubkey, Some(generichash::DIGEST_MIN), None).unwrap();
-            let words = Mnemonic::from_entropy(fingerprint.as_ref())?;
-
-            let v: CryptoMessage = self.read_message().await?;
-
-            let v = CryptoMessageWrapper::new(v);
-
-            let v: Ack = v.decrypt(&tx)?;
-
-            log::info!("got ack {}", v.success);
-
-            if !v.success {
-                return Err(Error::PairingFailed);
-            }
-
-            Ok(Some(PairingSession {
-                session: session_id.as_uuid(),
-                rx,
-                tx,
-                state: SessionState {
-                    secretkey: state.secretkey,
-                    pubkey: state.pubkey,
-                    remotekey: Some(sp),
-                },
-                coin: words.word_iter().map(|v| v.to_owned()).collect(),
-                remotekey: sp,
-            }))
-        }
-    }
-
-    pub async fn try_pair_confirm(
-        mut self,
-        session: PairingSession,
-        accept: bool,
-    ) -> SbResult<Session<A>> {
-        if accept {
-            let mut ack = PairingSynAck::default();
-            ack.success = true;
-            self.write_message(CryptoMessageWrapper::new_message(&ack, &session.rx)?.message())
-                .await?;
-
-            Ok(Session {
-                session: session.session,
-                rx: session.rx,
-                tx: session.tx,
-                state: SessionState {
-                    secretkey: session.state.secretkey,
-                    pubkey: session.state.pubkey,
-                    remotekey: Some(session.remotekey),
-                },
-                stream: self,
-            })
-        } else {
-            let mut ack = PairingSynAck::default();
-            ack.success = false;
-            ack.message = "pairing request rejected".to_owned();
-            self.write_message(CryptoMessageWrapper::new_message(&ack, &session.rx)?.message())
-                .await?;
-            return Err(Error::PairingFailed);
         }
     }
 

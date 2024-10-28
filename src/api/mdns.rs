@@ -24,10 +24,29 @@ pub struct ServiceScanner {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "flutter", frb(opaque))]
 pub struct HostRecord {
     pub name: String,
-    pub addr: Vec<IpAddr>,
+    pub addr: BTreeSet<IpAddr>,
     pub port: u16,
+}
+
+#[cfg(feature = "flutter")]
+impl HostRecord {
+    #[frb(sync)]
+    pub fn get_port(&self) -> u16 {
+        self.port
+    }
+
+    #[frb(sync)]
+    pub fn get_addrs(&self) -> Vec<IpAddr> {
+        self.addr.iter().cloned().collect()
+    }
+
+    #[frb(sync)]
+    pub fn get_name(&self) -> String {
+        self.name.clone()
+    }
 }
 
 #[cfg(feature = "flutter")]

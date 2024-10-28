@@ -1,3 +1,6 @@
+#[cfg(feature = "flutter")]
+use flutter_rust_bridge::frb;
+
 use prost::{bytes::Buf, Message};
 use sodiumoxide::{
     base64,
@@ -19,7 +22,7 @@ use crate::{
     serialize::{ProtoStream, ToUuid},
     types::{CryptoConfig, GetType},
 };
-
+#[cfg_attr(feature = "flutter", frb(ignore))]
 pub trait EncodeB64<T>
 where
     Self: Sized,
@@ -29,12 +32,14 @@ where
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "flutter", frb(opaque))]
 pub struct SessionState {
     pub secretkey: SecretKey,
     pub pubkey: PublicKey,
     pub remotekey: Option<PublicKey>,
 }
 
+#[cfg_attr(feature = "flutter", frb(ignore))]
 impl EncodeB64<CryptoConfig> for SessionState {
     fn b64(&self) -> CryptoConfig {
         let secretkey = base64::encode(&self.secretkey.0, base64::Variant::UrlSafe);
@@ -107,6 +112,10 @@ impl<A> Session<A>
 where
     A: Unpin + Send + AsyncReadExt + AsyncWriteExt,
 {
+    pub fn is_disconnected(&self) -> bool {
+        self.stream.is_disconnected
+    }
+
     pub(crate) fn get_header(&self) -> ApiHeader {
         ApiHeader {
             session: Some(self.session.as_proto()),
@@ -190,7 +199,7 @@ impl CryptoMessageWrapper {
 mod tests {
     use kx::client_session_keys;
 
-    use crate::proto::{ack::Message, Ack};
+    use crate::proto::{ack::AckMaybeMessage, Ack};
 
     use super::{hash_as_uuid, *};
 
@@ -199,7 +208,7 @@ mod tests {
         let m = Ack {
             success: true,
             status: 100,
-            message: Some(Message::Text("()".to_owned())),
+            ack_maybe_message: Some(AckMaybeMessage::Text("()".to_owned())),
         };
 
         let (p, sec) = kx::gen_keypair();

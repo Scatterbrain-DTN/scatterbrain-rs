@@ -1,6 +1,8 @@
-use std::io::{Read, Write};
+use std::io::{ErrorKind, Read, Write};
 
 use crc::Crc;
+#[cfg(feature = "flutter")]
+use flutter_rust_bridge::DartFnFuture;
 use prost::{bytes::BufMut, Message};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -9,6 +11,9 @@ use crate::error::{Error, IntoRemoteErr, SbResult};
 use crate::proto::{self, MessageType, TypePrefix, UnitResponse};
 use crate::types::GetType;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+
+#[cfg(feature = "flutter")]
+pub use super::api::SbSession;
 
 // java uses CRC32 from GZIP RFC1952
 const JAVA_ALG: crc::Algorithm<u32> = crc::Algorithm {
@@ -48,7 +53,27 @@ impl ToUuid for uuid::Uuid {
     }
 }
 
-pub struct ProtoStream<A>(A);
+pub struct ProtoStream<A> {
+    stream: A,
+    pub is_disconnected: bool,
+    #[cfg(feature = "flutter")]
+    pub(crate) on_connect:
+        Option<Box<dyn Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static>>,
+}
+
+impl<A> Clone for ProtoStream<A>
+where
+    A: Clone,
+{
+    fn clone(&self) -> Self {
+        ProtoStream {
+            stream: self.stream.clone(),
+            is_disconnected: self.is_disconnected,
+            #[cfg(feature = "flutter")]
+            on_connect: None,
+        }
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct TypedMessage<M>
@@ -145,7 +170,11 @@ where
     A: Unpin + Send,
 {
     pub fn new(sock: A) -> Self {
-        Self(sock)
+        Self {
+            stream: sock,
+            is_disconnected: false,
+            on_connect: None,
+        }
     }
 
     pub fn write_message_sync<M>(&mut self, message: &M) -> SbResult<()>
@@ -169,13 +198,13 @@ where
         digest.update(&size.to_be_bytes());
         digest.update(&tp);
         digest.update(&message);
-        self.0.write_i32::<BigEndian>(typesize)?;
-        self.0.write_i32::<BigEndian>(size)?;
+        self.stream.write_i32::<BigEndian>(typesize)?;
+        self.stream.write_i32::<BigEndian>(size)?;
 
-        self.0.write(&tp)?;
-        self.0.write(&message)?;
+        self.stream.write(&tp)?;
+        self.stream.write(&message)?;
 
-        self.0.write_u32::<BigEndian>(digest.finalize())?;
+        self.stream.write_u32::<BigEndian>(digest.finalize())?;
 
         Ok(())
     }
@@ -201,13 +230,13 @@ where
         digest.update(&size.to_be_bytes());
         digest.update(&tp);
         digest.update(&message);
-        self.0.write_i32(typesize).await?;
-        self.0.write_i32(size).await?;
+        self.stream.write_i32(typesize).await?;
+        self.stream.write_i32(size).await?;
 
-        self.0.write(&tp).await?;
-        self.0.write(&message).await?;
+        self.stream.write(&tp).await?;
+        self.stream.write(&message).await?;
 
-        self.0.write_u32(digest.finalize()).await?;
+        self.stream.write_u32(digest.finalize()).await?;
 
         Ok(())
     }
@@ -220,8 +249,8 @@ where
         let crc = Crc::<u32>::new(&JAVA_ALG);
         let mut digest = crc.digest();
 
-        let typesize: i32 = self.0.read_i32::<BigEndian>()?;
-        let size = self.0.read_i32::<BigEndian>()?;
+        let typesize: i32 = self.stream.read_i32::<BigEndian>()?;
+        let size = self.stream.read_i32::<BigEndian>()?;
 
         log::debug!("receivied message sizes {} {}", typesize, size);
         digest.update(&typesize.to_be_bytes());
@@ -236,7 +265,7 @@ where
         }
 
         let mut mb = vec![0; typesize as usize];
-        self.0.read(mb.as_mut_slice())?;
+        self.stream.read(mb.as_mut_slice())?;
         digest.update(mb.as_slice());
         let tp = TypePrefix::decode(mb.as_slice())?;
 
@@ -254,10 +283,10 @@ where
         }
 
         let mut mb = vec![0; size as usize];
-        self.0.read(mb.as_mut_slice())?;
+        self.stream.read(mb.as_mut_slice())?;
         digest.update(mb.as_slice());
         let m = M::decode(mb.as_slice())?;
-        let crc = self.0.read_u32::<BigEndian>()?;
+        let crc = self.stream.read_u32::<BigEndian>()?;
         let mycrc = digest.finalize();
         log::debug!("received CRC thiers={} ours={}", crc, mycrc);
         if crc != mycrc {
@@ -271,11 +300,36 @@ where
         M: Message + GetType + Default + Send,
         A: AsyncReadExt,
     {
+        match self.read_message_impl().await {
+            Ok(m) => Ok(m),
+            Err(err) => match err {
+                Error::IoError(err) => {
+                    match err.kind() {
+                        ErrorKind::ConnectionAborted | ErrorKind::UnexpectedEof => {
+                            self.is_disconnected = true;
+                            if let Some(on_disconnect) = self.on_connect.as_ref() {
+                                on_disconnect(None).await;
+                            }
+                        }
+                        _ => (),
+                    }
+                    Err(Error::IoError(err))
+                }
+                e => Err(e),
+            },
+        }
+    }
+
+    async fn read_message_impl<M>(&mut self) -> SbResult<M>
+    where
+        M: Message + GetType + Default + Send,
+        A: AsyncReadExt,
+    {
         let crc = Crc::<u32>::new(&JAVA_ALG);
         let mut digest = crc.digest();
 
-        let typesize = self.0.read_i32().await?;
-        let size = self.0.read_i32().await?;
+        let typesize = self.stream.read_i32().await?;
+        let size = self.stream.read_i32().await?;
 
         log::debug!("receivied message sizes {} {}", typesize, size);
         digest.update(&typesize.to_be_bytes());
@@ -290,7 +344,7 @@ where
         }
 
         let mut mb = vec![0; typesize as usize];
-        self.0.read(mb.as_mut_slice()).await?;
+        self.stream.read(mb.as_mut_slice()).await?;
         digest.update(mb.as_slice());
         let tp = TypePrefix::decode(mb.as_slice())?;
 
@@ -303,10 +357,10 @@ where
         if M::get_type() != tp.r#type() {
             if tp.r#type() == MessageType::UnitResponse {
                 let mut mb = vec![0; size as usize];
-                self.0.read(mb.as_mut_slice()).await?;
+                self.stream.read(mb.as_mut_slice()).await?;
                 digest.update(mb.as_slice());
                 let m = UnitResponse::decode(mb.as_slice())?;
-                let crc = self.0.read_u32().await?;
+                let crc = self.stream.read_u32().await?;
                 let mycrc = digest.finalize();
                 log::debug!("received CRC thiers={} ours={}", crc, mycrc);
                 if crc != mycrc {
@@ -321,10 +375,10 @@ where
         }
 
         let mut mb = vec![0; size as usize];
-        self.0.read(mb.as_mut_slice()).await?;
+        self.stream.read(mb.as_mut_slice()).await?;
         digest.update(mb.as_slice());
         let m = M::decode(mb.as_slice())?;
-        let crc = self.0.read_u32().await?;
+        let crc = self.stream.read_u32().await?;
         let mycrc = digest.finalize();
         log::debug!("received CRC thiers={} ours={}", crc, mycrc);
         if crc != mycrc {
@@ -337,7 +391,9 @@ where
 #[cfg(test)]
 mod test {
 
-    use crate::proto::{ack::Message, Ack};
+    use proto::ack::AckMaybeMessage;
+
+    use crate::proto::Ack;
 
     use super::*;
     #[tokio::test]
@@ -356,7 +412,7 @@ mod test {
         let ack = Ack {
             success: true,
             status: 1,
-            message: Some(Message::Text("tests".to_owned())),
+            ack_maybe_message: Some(AckMaybeMessage::Text("tests".to_owned())),
         };
 
         let (client, server) = tokio::io::duplex(64);
@@ -373,7 +429,7 @@ mod test {
         let ack = Ack {
             success: true,
             status: 1,
-            message: Some(Message::Text("tests".to_owned())),
+            ack_maybe_message: Some(AckMaybeMessage::Text("tests".to_owned())),
         };
 
         let (client, server) = tokio::io::duplex(64);
@@ -392,7 +448,7 @@ mod test {
         let ack = Ack {
             success: true,
             status: 1,
-            message: Some(Message::Text("tests".to_owned())),
+            ack_maybe_message: Some(AckMaybeMessage::Text("tests".to_owned())),
         };
 
         let (mut c, server) = tokio::io::duplex(64);
