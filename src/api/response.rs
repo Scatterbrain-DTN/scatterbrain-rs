@@ -1,11 +1,12 @@
 use std::{collections::HashMap, fmt};
 
+use chrono::Utc;
 use serde::{ser::Error, Deserialize, Serialize};
 use uuid::Uuid;
 
 pub use crate::{
+    api::proto::{ApiMessage, IdentityResponse, MessageResponse, RespCode},
     error::{Error as CrateError, SbResult},
-    proto::{ApiMessage, IdentityResponse, MessageResponse, RespCode},
     serialize::ToUuid,
 };
 
@@ -52,6 +53,24 @@ pub struct Message {
     pub id: Option<Uuid>,
     pub body: Vec<u8>,
     pub file_name: String,
+}
+
+impl Message {
+    pub fn from_vec(body: Vec<u8>, application: String) -> Message {
+        Message {
+            from_fingerprint: None,
+            to_fingerprint: None,
+            application,
+            extension: "".to_owned(),
+            mime: "application/octet-stream".to_owned(),
+            send_date: Utc::now().timestamp(),
+            receive_date: Utc::now().timestamp(),
+            is_file: false,
+            id: None,
+            body,
+            file_name: "".to_owned(),
+        }
+    }
 }
 
 impl fmt::Display for Message {
@@ -134,5 +153,16 @@ impl From<Message> for ApiMessage {
             body: v.body,
             file_name: v.file_name,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Message;
+
+    #[test]
+    fn from_vec() {
+        let v = vec![1, 2, 3];
+        let m = Message::from_vec(v, "newsnet".to_owned());
     }
 }

@@ -7,3 +7,11 @@ pub mod mirror;
 pub mod response;
 pub mod serialize;
 pub mod types;
+pub use crate::types::GetType;
+
+#[flutter_rust_bridge::frb(ignore)]
+pub mod proto {
+    pub use crate::types::GetType;
+
+    include!(concat!(env!("OUT_DIR"), "/proto.rs"));
+}

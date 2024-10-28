@@ -5,12 +5,14 @@ pub use std::{
 };
 
 #[cfg(feature = "flutter")]
-use flutter_rust_bridge::{frb, DartFnFuture};
+use flutter_rust_bridge::{frb, DartFnFuture, JoinHandle};
 pub use mdns_sd::{ServiceDaemon, ServiceEvent};
 pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use tokio_util::sync::CancellationToken;
 
 use crate::error::SbResult;
+
+use super::error::Error;
 
 pub type HostRecords<'a> = tokio::sync::RwLockReadGuard<'a, BTreeMap<String, HostRecord>>;
 
@@ -18,35 +20,94 @@ struct ServiceScannerInner {
     devices: tokio::sync::RwLock<BTreeMap<String, HostRecord>>,
 }
 
+struct CancelationHandle {
+    token: CancellationToken,
+    #[cfg(feature = "flutter")]
+    handle: Option<JoinHandle<Result<(), Error>>>,
+}
+
 pub struct ServiceScanner {
     inner: std::sync::Arc<ServiceScannerInner>,
-    handle: Option<CancellationToken>,
+    handle: Option<CancelationHandle>,
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "flutter", frb(opaque))]
+#[cfg(not(feature = "flutter"))]
 pub struct HostRecord {
     pub name: String,
-    pub addr: Vec<IpAddr>,
+    pub addr: BTreeSet<IpAddr>,
     pub port: u16,
+}
+
+#[cfg_attr(feature = "flutter", frb(opaque))]
+#[cfg(feature = "flutter")]
+#[derive(Clone, Debug)]
+pub struct HostRecord {
+    pub(crate) name: String,
+    pub(crate) addr: BTreeSet<IpAddr>,
+    pub(crate) port: u16,
+}
+
+#[cfg(feature = "flutter")]
+impl HostRecord {
+    #[frb(sync)]
+    pub fn get_port(&self) -> u16 {
+        self.port
+    }
+
+    #[frb(sync)]
+    pub fn get_addrs(&self) -> Vec<IpAddr> {
+        self.addr.iter().cloned().collect()
+    }
+
+    #[frb(sync)]
+    pub fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+#[cfg(feature = "flutter")]
+#[allow(async_fn_in_trait)]
+pub trait ServiceScannerLike {
+    async fn discover_devices(
+        &mut self,
+        cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
+    ) -> anyhow::Result<()>;
+
+    fn stop_scan(&mut self);
+}
+
+#[cfg(feature = "flutter")]
+impl ServiceScannerLike for ServiceScanner {
+    async fn discover_devices(
+        &mut self,
+        cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
+    ) -> anyhow::Result<()> {
+        self.discover_devices_impl(std::sync::Arc::new(cb)).await?;
+        Ok(())
+    }
+
+    fn stop_scan(&mut self) {
+        if let Some(handle) = self.handle.take() {
+            handle.token.cancel();
+            if let Some(join) = handle.handle {
+                join.abort();
+            }
+        }
+    }
 }
 
 #[cfg(feature = "flutter")]
 impl ServiceScanner {
-    pub async fn discover_devices(
-        &mut self,
-        cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
-    ) -> SbResult<()> {
-        self.discover_devices_impl(std::sync::Arc::new(cb)).await
-    }
-
     async fn discover_devices_impl(
         &mut self,
         cb: std::sync::Arc<dyn Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static>,
     ) -> SbResult<()> {
         let s = self.inner.clone();
         let c = CancellationToken::new();
-        self.handle = Some(c.clone());
-        tokio::spawn(async move {
+        let c2 = c.clone();
+        let task = tokio::spawn(async move {
             s.mdns_scan(
                 |res| {
                     let cb = cb.clone();
@@ -59,13 +120,12 @@ impl ServiceScanner {
             )
             .await
         });
-        Ok(())
-    }
 
-    pub async fn stop_scan(&mut self) {
-        if let Some(handle) = self.handle.take() {
-            handle.cancel()
-        }
+        self.handle = Some(CancelationHandle {
+            token: c2,
+            handle: Some(task),
+        });
+        Ok(())
     }
 }
 
@@ -86,7 +146,13 @@ impl ServiceScanner {
         Fut: Future<Output = SbResult<()>>,
     {
         let c = CancellationToken::new();
-        self.handle = Some(c.clone());
+
+        self.handle = Some(CancelationHandle {
+            token: c.clone(),
+            #[cfg(feature = "flutter")]
+            handle: None,
+        });
+
         self.inner.mdns_scan(cb, c).await
     }
 }
@@ -102,6 +168,7 @@ impl ServiceScannerInner {
         // Scatterbrain mdns service type
         let service_type = "_sbd._tcp.local.";
         let receiver = mdns.browse(service_type)?;
+
         while let Some(event) = tokio::select! {
            event =  receiver.recv_async() => {
               Some(event)

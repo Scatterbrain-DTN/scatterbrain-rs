@@ -1,6 +1,6 @@
 use std::array::TryFromSliceError;
 
-use crate::proto::{unit_response::UnitresponseMaybeMessage, RespCode, UnitResponse};
+use crate::api::proto::{unit_response::UnitresponseMaybeMessage, RespCode, UnitResponse};
 
 pub type SbResult<T> = std::result::Result<T, Error>;
 
@@ -40,6 +40,8 @@ pub enum Error {
     RemoteError(String),
     #[error("{0}")]
     JsonError(#[from] serde_json::Error),
+    #[error("{0}")]
+    CryptoError(#[from] dryoc::Error),
     #[error("{0}")]
     Generic(#[from] Box<dyn std::error::Error + Send + Sync>),
 }

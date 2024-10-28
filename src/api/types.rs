@@ -1,12 +1,17 @@
-use crate::proto::PairingSynAck;
-pub use crate::proto::SbEvent;
+#[cfg(feature = "flutter")]
+pub use crate::api::api::SbSession;
+use crate::api::proto::PairingSynAck;
 pub use crate::response::{Identity, Message};
-use chrono::NaiveDateTime;
 pub use core::future::Future;
+#[cfg(feature = "flutter")]
+use flutter_rust_bridge::frb;
+#[cfg(feature = "flutter")]
+pub use flutter_rust_bridge::DartFnFuture;
 pub use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::kx::{PublicKey, SessionKey};
 pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+
 pub use std::pin::Pin;
+
 use uuid::Uuid;
 #[derive(Serialize, Deserialize)]
 pub struct CryptoConfig {
@@ -15,73 +20,29 @@ pub struct CryptoConfig {
     pub remotekey: Option<String>,
 }
 
-pub use crate::proto::{
+impl CryptoConfig {
+    pub fn generate() -> CryptoConfig {
+        SessionState::default().b64()
+    }
+}
+
+pub use crate::api::proto::{
     Ack, CryptoMessage, GetEvents, GetIdentityCommand, GetMessagesCmd, IdentityResponse,
     ImportIdentityCommand, ImportIdentityResponse, MessageResponse, MessageType, PairingAck,
     PairingInitiate, PairingRequest, SbEvents, SendMessageCmd, TypePrefix, UnitResponse,
 };
-pub type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
+#[frb(non_opaque)]
+pub type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
+#[frb(non_opaque)]
+pub type DartSyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
 
-use super::error::SbResult;
-use crate::crypto::SessionState;
-
-pub struct PairingSession {
-    pub coin: Vec<String>,
-    pub state: SessionState,
-    pub session: Uuid,
-    pub tx: SessionKey,
-    pub rx: SessionKey,
-    pub remotekey: PublicKey,
-}
-
-pub trait SessionTrait {
-    fn get_identity<'a>(&'a mut self, id: Option<Uuid>) -> DartFuture<'a, SbResult<Vec<Identity>>>;
-
-    fn get_events<'a>(
-        &'a mut self,
-        block: bool,
-        count: Option<u32>,
-    ) -> DartFuture<'a, SbResult<Vec<SbEvent>>>;
-
-    fn get_messages<'a>(
-        &'a mut self,
-        application: String,
-        limit: Option<i32>,
-    ) -> DartFuture<'a, SbResult<Vec<Message>>>;
-
-    fn send_messages<'a>(
-        &'a mut self,
-        messages: Vec<Message>,
-        sign_identity: Option<Uuid>,
-    ) -> DartFuture<'a, SbResult<()>>;
-
-    fn initiate_identity_import<'a>(
-        &'a mut self,
-        id: Option<Uuid>,
-    ) -> DartFuture<'a, SbResult<ImportIdentityState>>;
-
-    fn get_messages_send_date<'a>(
-        &'a mut self,
-        application: String,
-        limit: Option<i32>,
-        start_date: NaiveDateTime,
-        end_date: NaiveDateTime,
-    ) -> DartFuture<'a, SbResult<Vec<Message>>>;
-
-    fn get_messages_recieve_date<'a>(
-        &'a mut self,
-        application: String,
-        limit: Option<i32>,
-        start_date: NaiveDateTime,
-        end_date: NaiveDateTime,
-    ) -> DartFuture<'a, SbResult<Vec<Message>>>;
-}
+use crate::crypto::{EncodeB64, SessionState};
 
 pub trait GetType {
     fn get_type() -> MessageType;
     fn get_type_message(&self) -> TypePrefix {
         TypePrefix {
-            r#type: Self::get_type().into(),
+            message_type: Self::get_type().into(),
         }
     }
 }
@@ -189,6 +150,7 @@ impl GetType for PairingSynAck {
 }
 
 #[derive(Debug)]
+#[cfg_attr(feature = "flutter", frb(non_opaque))]
 pub enum ImportIdentityState {
     Initiated(Uuid),
     Complete(Uuid),
