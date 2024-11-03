@@ -31,7 +31,7 @@ pub use crate::proto::{
     ImportIdentityCommand, ImportIdentityResponse, MessageResponse, MessageType, PairingAck,
     PairingInitiate, PairingRequest, SbEvents, SendMessageCmd, TypePrefix, UnitResponse,
 };
-pub(crate) type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
+pub type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 pub type DartSyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
 
 use crate::crypto::{EncodeB64, SessionState};

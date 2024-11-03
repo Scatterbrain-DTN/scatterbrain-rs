@@ -1,31 +1,34 @@
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
+use super::error::Error;
+use super::response::ToUuid;
+use super::serialize::ProtoStream;
+pub use super::types::DartFuture;
+pub use super::types::DartSyncFuture;
+
+pub use super::types::{CryptoConfig, ImportIdentityState};
+use super::types::{PairingAck, PairingInitiate};
+pub use super::{error::SbResult, mdns::HostRecord};
+pub use crate::crypto::SessionState;
+use crate::crypto::{CryptoMessageWrapper, EncodeB64, Session};
+
+use crate::flutter_helpers::SessionTrait;
+pub use crate::proto::{PairingSynAck, SbEvent};
+pub use crate::response::{Identity, Message};
+use crate::types::{Ack, CryptoMessage, PairingRequest};
 use bip39::Mnemonic;
 use chrono::NaiveDateTime;
 pub use flutter_rust_bridge::{frb, DartFnFuture};
+
 use sodiumoxide::base64;
 use sodiumoxide::crypto::generichash;
 use sodiumoxide::crypto::kx::{client_session_keys, PublicKey, SessionKey};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 pub use tokio::sync::RwLock;
 use tokio::sync::RwLockWriteGuard;
 use uuid::Uuid;
 
-use super::error::Error;
-use super::response::ToUuid;
-use super::serialize::ProtoStream;
-use super::types::DartFuture;
-pub use super::types::DartSyncFuture;
-pub use super::types::{CryptoConfig, ImportIdentityState};
-use super::types::{PairingAck, PairingInitiate};
-pub use super::{error::SbResult, mdns::HostRecord};
-use crate::connection::SessionTrait;
-pub use crate::crypto::SessionState;
-use crate::crypto::{CryptoMessageWrapper, EncodeB64, Session};
-use crate::proto::{PairingSynAck, SbEvent};
-pub use crate::response::{Identity, Message};
-use crate::types::{Ack, CryptoMessage, PairingRequest};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 type SbSessionInner = Arc<RwLock<dyn SessionTrait + Send + Sync>>;
 pub struct SbSession(pub(crate) SbSessionInner);
 
@@ -152,43 +155,90 @@ impl HostRecord {
     }
 }
 
-impl SbSession {
-    pub async fn set_on_connect(
+#[allow(async_fn_in_trait)]
+pub trait SessionLike {
+    async fn set_on_connect(
+        &self,
+        on_connect: impl Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + Sized + 'static,
+    );
+
+    async fn on_connect(&self);
+
+    async fn get_identity(&self, id: Option<Uuid>) -> anyhow::Result<Vec<Identity>>;
+
+    async fn is_closed(&self) -> anyhow::Result<bool>;
+
+    async fn disconnect(&self);
+
+    async fn get_events(&self, block: bool, count: Option<u32>) -> anyhow::Result<Vec<SbEvent>>;
+
+    async fn get_messages<'a>(
+        &self,
+        application: String,
+        limit: Option<i32>,
+    ) -> anyhow::Result<Vec<Message>>;
+
+    async fn send_messages<'a>(
+        &self,
+        messages: Vec<Message>,
+        sign_identity: Option<Uuid>,
+    ) -> anyhow::Result<()>;
+
+    async fn initiate_identity_import<'a>(
+        &'a self,
+        id: Option<Uuid>,
+    ) -> anyhow::Result<ImportIdentityState>;
+
+    async fn get_messages_send_date<'a>(
+        &'a self,
+        application: String,
+        limit: Option<i32>,
+        start_date: NaiveDateTime,
+        end_date: NaiveDateTime,
+    ) -> anyhow::Result<Vec<Message>>;
+
+    async fn get_messages_recieve_date<'a>(
+        &'a self,
+        application: String,
+        limit: Option<i32>,
+        start_date: NaiveDateTime,
+        end_date: NaiveDateTime,
+    ) -> anyhow::Result<Vec<Message>>;
+}
+
+impl SessionLike for SbSession {
+    async fn set_on_connect(
         &self,
         on_connect: impl Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + Sized + 'static,
     ) {
         self.0.write().await.set_on_connect(Box::new(on_connect))
     }
 
-    pub async fn on_connect(&self) {
+    async fn on_connect(&self) {
         if let Some(on_connect) = self.0.read().await.on_connect() {
             on_connect(Some(self.clone())).await;
         }
     }
 
-    pub async fn get_identity(&self, id: Option<Uuid>) -> anyhow::Result<Vec<Identity>> {
+    async fn get_identity(&self, id: Option<Uuid>) -> anyhow::Result<Vec<Identity>> {
         Ok(self.0.write().await.get_identity(id).await?)
     }
 
-    pub async fn is_closed(&self) -> anyhow::Result<bool> {
+    async fn is_closed(&self) -> anyhow::Result<bool> {
         Ok(self.0.write().await.is_closed().await?)
     }
 
-    pub async fn disconnect(&self) {
+    async fn disconnect(&self) {
         if let Some(on_connect) = self.0.read().await.on_connect() {
             on_connect(None).await
         }
     }
 
-    pub async fn get_events(
-        &self,
-        block: bool,
-        count: Option<u32>,
-    ) -> anyhow::Result<Vec<SbEvent>> {
+    async fn get_events(&self, block: bool, count: Option<u32>) -> anyhow::Result<Vec<SbEvent>> {
         Ok(self.0.write().await.get_events(block, count).await?)
     }
 
-    pub async fn get_messages<'a>(
+    async fn get_messages<'a>(
         &self,
         application: String,
         limit: Option<i32>,
@@ -201,7 +251,7 @@ impl SbSession {
             .await?)
     }
 
-    pub async fn send_messages<'a>(
+    async fn send_messages<'a>(
         &self,
         messages: Vec<Message>,
         sign_identity: Option<Uuid>,
@@ -214,14 +264,14 @@ impl SbSession {
             .await?)
     }
 
-    pub async fn initiate_identity_import<'a>(
+    async fn initiate_identity_import<'a>(
         &'a self,
         id: Option<Uuid>,
     ) -> anyhow::Result<ImportIdentityState> {
         Ok(self.0.write().await.initiate_identity_import(id).await?)
     }
 
-    pub async fn get_messages_send_date<'a>(
+    async fn get_messages_send_date<'a>(
         &'a self,
         application: String,
         limit: Option<i32>,
@@ -236,7 +286,7 @@ impl SbSession {
             .await?)
     }
 
-    pub async fn get_messages_recieve_date<'a>(
+    async fn get_messages_recieve_date<'a>(
         &'a self,
         application: String,
         limit: Option<i32>,

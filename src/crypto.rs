@@ -116,7 +116,7 @@ where
         self.stream.is_disconnected
     }
 
-    pub(crate) fn get_header(&self) -> ApiHeader {
+    pub fn get_header(&self) -> ApiHeader {
         ApiHeader {
             session: Some(self.session.as_proto()),
             stream: None,

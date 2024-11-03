@@ -173,6 +173,7 @@ where
         Self {
             stream: sock,
             is_disconnected: false,
+            #[cfg(feature = "flutter")]
             on_connect: None,
         }
     }
@@ -307,6 +308,7 @@ where
                     match err.kind() {
                         ErrorKind::ConnectionAborted | ErrorKind::UnexpectedEof => {
                             self.is_disconnected = true;
+                            #[cfg(feature = "flutter")]
                             if let Some(on_disconnect) = self.on_connect.as_ref() {
                                 on_disconnect(None).await;
                             }
