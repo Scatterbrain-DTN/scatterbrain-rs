@@ -50,14 +50,34 @@ impl HostRecord {
 }
 
 #[cfg(feature = "flutter")]
-impl ServiceScanner {
-    pub async fn discover_devices(
+#[allow(async_fn_in_trait)]
+pub trait ServiceScannerLike {
+    async fn discover_devices(
+        &mut self,
+        cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
+    ) -> SbResult<()>;
+
+    async fn stop_scan(&mut self);
+}
+
+#[cfg(feature = "flutter")]
+impl ServiceScannerLike for ServiceScanner {
+    async fn discover_devices(
         &mut self,
         cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
     ) -> SbResult<()> {
         self.discover_devices_impl(std::sync::Arc::new(cb)).await
     }
 
+    async fn stop_scan(&mut self) {
+        if let Some(handle) = self.handle.take() {
+            handle.cancel()
+        }
+    }
+}
+
+#[cfg(feature = "flutter")]
+impl ServiceScanner {
     async fn discover_devices_impl(
         &mut self,
         cb: std::sync::Arc<dyn Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static>,
@@ -79,12 +99,6 @@ impl ServiceScanner {
             .await
         });
         Ok(())
-    }
-
-    pub async fn stop_scan(&mut self) {
-        if let Some(handle) = self.handle.take() {
-            handle.cancel()
-        }
     }
 }
 
