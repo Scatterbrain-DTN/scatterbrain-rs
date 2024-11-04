@@ -25,6 +25,7 @@
 
 // Section: imports
 
+use crate::api::api::HostRecordLike;
 use crate::api::api::SessionLike;
 use crate::api::api::*;
 use crate::api::error::IntoRemoteErr;
@@ -4948,156 +4949,156 @@ fn pde_ffi_dispatcher_primary_impl(
         16 => {
             wire__crate__api__api__SbSession_set_on_connect_impl(port, ptr, rust_vec_len, data_len)
         }
-        36 => wire__crate__api__mdns__HostRecord_connect_impl(port, ptr, rust_vec_len, data_len),
-        40 => wire__crate__api__mdns__HostRecord_pair_impl(port, ptr, rust_vec_len, data_len),
-        41 => wire__crate__api__mdns__HostRecord_try_pair_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__api__mdns__Ipv4Addr_is_loopback_impl(port, ptr, rust_vec_len, data_len),
-        43 => wire__crate__api__mdns__Ipv4Addr_is_multicast_impl(port, ptr, rust_vec_len, data_len),
-        44 => {
+        39 => wire__crate__api__mdns__HostRecord_connect_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__api__mdns__HostRecord_pair_impl(port, ptr, rust_vec_len, data_len),
+        44 => wire__crate__api__mdns__HostRecord_try_pair_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api__mdns__Ipv4Addr_is_loopback_impl(port, ptr, rust_vec_len, data_len),
+        46 => wire__crate__api__mdns__Ipv4Addr_is_multicast_impl(port, ptr, rust_vec_len, data_len),
+        47 => {
             wire__crate__api__mdns__Ipv4Addr_is_unspecified_impl(port, ptr, rust_vec_len, data_len)
         }
-        46 => wire__crate__api__mdns__Ipv6Addr_is_loopback_impl(port, ptr, rust_vec_len, data_len),
-        47 => wire__crate__api__mdns__Ipv6Addr_is_multicast_impl(port, ptr, rust_vec_len, data_len),
-        48 => {
+        49 => wire__crate__api__mdns__Ipv6Addr_is_loopback_impl(port, ptr, rust_vec_len, data_len),
+        50 => wire__crate__api__mdns__Ipv6Addr_is_multicast_impl(port, ptr, rust_vec_len, data_len),
+        51 => {
             wire__crate__api__mdns__Ipv6Addr_is_unspecified_impl(port, ptr, rust_vec_len, data_len)
         }
-        50 => wire__crate__api__mdns__ServiceScanner_discover_devices_impl(
+        53 => wire__crate__api__mdns__ServiceScanner_discover_devices_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        52 => {
+        55 => {
             wire__crate__api__mdns__ServiceScanner_stop_scan_impl(port, ptr, rust_vec_len, data_len)
         }
-        60 => {
+        63 => {
             wire__crate__api__types__crypto_config_generate_impl(port, ptr, rust_vec_len, data_len)
         }
-        61 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        62 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
-        63 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
-        64 => wire__crate__proto__crypto_message_get_type_message_impl(
+        64 => wire__crate__proto__ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        65 => wire__crate__proto__ack_get_type_message_impl(port, ptr, rust_vec_len, data_len),
+        66 => wire__crate__proto__crypto_message_get_type_impl(port, ptr, rust_vec_len, data_len),
+        67 => wire__crate__proto__crypto_message_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        65 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        66 => {
+        68 => wire__crate__proto__get_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        69 => {
             wire__crate__proto__get_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        67 => wire__crate__proto__get_identity_command_get_type_impl(
+        70 => wire__crate__proto__get_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        68 => wire__crate__proto__get_identity_command_get_type_message_impl(
+        71 => wire__crate__proto__get_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        69 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        70 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
+        72 => wire__crate__proto__get_messages_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        73 => wire__crate__proto__get_messages_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        71 => {
+        74 => {
             wire__crate__proto__identity_response_get_type_impl(port, ptr, rust_vec_len, data_len)
         }
-        72 => wire__crate__proto__identity_response_get_type_message_impl(
+        75 => wire__crate__proto__identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        73 => wire__crate__proto__import_identity_command_get_type_impl(
+        76 => wire__crate__proto__import_identity_command_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        74 => wire__crate__proto__import_identity_command_get_type_message_impl(
+        77 => wire__crate__proto__import_identity_command_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        75 => wire__crate__proto__import_identity_response_get_type_impl(
+        78 => wire__crate__proto__import_identity_response_get_type_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        76 => wire__crate__proto__import_identity_response_get_type_message_impl(
+        79 => wire__crate__proto__import_identity_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        77 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        78 => wire__crate__proto__message_response_get_type_message_impl(
+        80 => wire__crate__proto__message_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        81 => wire__crate__proto__message_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        79 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
-        80 => wire__crate__proto__message_type_get_type_message_impl(
+        82 => wire__crate__proto__message_type_get_type_impl(port, ptr, rust_vec_len, data_len),
+        83 => wire__crate__proto__message_type_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        81 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        82 => {
+        84 => wire__crate__proto__pairing_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        85 => {
             wire__crate__proto__pairing_ack_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        83 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
-        84 => wire__crate__proto__pairing_initiate_get_type_message_impl(
+        86 => wire__crate__proto__pairing_initiate_get_type_impl(port, ptr, rust_vec_len, data_len),
+        87 => wire__crate__proto__pairing_initiate_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        85 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
-        86 => wire__crate__proto__pairing_request_get_type_message_impl(
+        88 => wire__crate__proto__pairing_request_get_type_impl(port, ptr, rust_vec_len, data_len),
+        89 => wire__crate__proto__pairing_request_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        87 => wire__crate__proto__pairing_syn_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
-        88 => wire__crate__proto__pairing_syn_ack_get_type_message_impl(
+        90 => wire__crate__proto__pairing_syn_ack_get_type_impl(port, ptr, rust_vec_len, data_len),
+        91 => wire__crate__proto__pairing_syn_ack_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        89 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
-        90 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
-        91 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
-        92 => {
+        92 => wire__crate__proto__proto_uuid_as_proto_impl(port, ptr, rust_vec_len, data_len),
+        93 => wire__crate__proto__proto_uuid_as_uuid_impl(port, ptr, rust_vec_len, data_len),
+        94 => wire__crate__proto__sb_events_get_type_impl(port, ptr, rust_vec_len, data_len),
+        95 => {
             wire__crate__proto__sb_events_get_type_message_impl(port, ptr, rust_vec_len, data_len)
         }
-        93 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
-        94 => wire__crate__proto__send_message_cmd_get_type_message_impl(
+        96 => wire__crate__proto__send_message_cmd_get_type_impl(port, ptr, rust_vec_len, data_len),
+        97 => wire__crate__proto__send_message_cmd_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        95 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
-        96 => wire__crate__proto__unit_response_get_type_message_impl(
+        98 => wire__crate__proto__unit_response_get_type_impl(port, ptr, rust_vec_len, data_len),
+        99 => wire__crate__proto__unit_response_get_type_message_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        97 => wire__crate__proto__unit_response_into_remote_err_impl(
+        100 => wire__crate__proto__unit_response_into_remote_err_impl(
             port,
             ptr,
             rust_vec_len,
@@ -5135,42 +5136,42 @@ fn pde_ffi_dispatcher_sync_impl(
             rust_vec_len,
             data_len,
         ),
-        30 => wire__crate__api__mdns__HostRecord_auto_accessor_get_addr_impl(
+        33 => wire__crate__api__mdns__HostRecord_auto_accessor_get_addr_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        31 => wire__crate__api__mdns__HostRecord_auto_accessor_get_name_impl(
+        34 => wire__crate__api__mdns__HostRecord_auto_accessor_get_name_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        32 => wire__crate__api__mdns__HostRecord_auto_accessor_get_port_impl(
+        35 => wire__crate__api__mdns__HostRecord_auto_accessor_get_port_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        33 => wire__crate__api__mdns__HostRecord_auto_accessor_set_addr_impl(
+        36 => wire__crate__api__mdns__HostRecord_auto_accessor_set_addr_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        34 => wire__crate__api__mdns__HostRecord_auto_accessor_set_name_impl(
+        37 => wire__crate__api__mdns__HostRecord_auto_accessor_set_name_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        35 => wire__crate__api__mdns__HostRecord_auto_accessor_set_port_impl(
+        38 => wire__crate__api__mdns__HostRecord_auto_accessor_set_port_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        37 => wire__crate__api__mdns__HostRecord_get_addrs_impl(ptr, rust_vec_len, data_len),
-        38 => wire__crate__api__mdns__HostRecord_get_name_impl(ptr, rust_vec_len, data_len),
-        39 => wire__crate__api__mdns__HostRecord_get_port_impl(ptr, rust_vec_len, data_len),
-        45 => wire__crate__api__mdns__Ipv4Addr_to_string_impl(ptr, rust_vec_len, data_len),
-        49 => wire__crate__api__mdns__Ipv6Addr_to_string_impl(ptr, rust_vec_len, data_len),
-        51 => wire__crate__api__mdns__ServiceScanner_new_impl(ptr, rust_vec_len, data_len),
+        40 => wire__crate__api__mdns__HostRecord_get_addrs_impl(ptr, rust_vec_len, data_len),
+        41 => wire__crate__api__mdns__HostRecord_get_name_impl(ptr, rust_vec_len, data_len),
+        42 => wire__crate__api__mdns__HostRecord_get_port_impl(ptr, rust_vec_len, data_len),
+        48 => wire__crate__api__mdns__Ipv4Addr_to_string_impl(ptr, rust_vec_len, data_len),
+        52 => wire__crate__api__mdns__Ipv6Addr_to_string_impl(ptr, rust_vec_len, data_len),
+        54 => wire__crate__api__mdns__ServiceScanner_new_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -7568,6 +7569,7 @@ mod io {
     // Section: imports
 
     use super::*;
+    use crate::api::api::HostRecordLike;
     use crate::api::api::SessionLike;
     use crate::api::api::*;
     use crate::api::error::IntoRemoteErr;
@@ -7761,6 +7763,7 @@ mod web {
     // Section: imports
 
     use super::*;
+    use crate::api::api::HostRecordLike;
     use crate::api::api::SessionLike;
     use crate::api::api::*;
     use crate::api::error::IntoRemoteErr;

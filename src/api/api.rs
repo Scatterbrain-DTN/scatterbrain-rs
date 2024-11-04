@@ -110,8 +110,27 @@ impl From<PairingSession> for TryPairConfirm {
     }
 }
 
-impl HostRecord {
-    pub async fn connect(&self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>> {
+#[allow(async_fn_in_trait)]
+pub trait HostRecordLike {
+    async fn connect(&self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>>;
+
+    async fn try_pair(
+        &self,
+        state: CryptoConfig,
+        app_name: String,
+        on_connect: impl Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static,
+    ) -> anyhow::Result<PairStatus>;
+
+    async fn pair(
+        &self,
+        state: CryptoConfig,
+        app_name: String,
+        cb: impl FnOnce(Vec<String>) -> DartFnFuture<bool>,
+    ) -> anyhow::Result<SbSession>;
+}
+
+impl HostRecordLike for HostRecord {
+    async fn connect(&self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>> {
         let proto = self.clone().connect_impl().await?;
 
         if let Some(session) = proto.key_exchange(SessionState::from_b64(state)?).await? {
@@ -123,7 +142,7 @@ impl HostRecord {
         }
     }
 
-    pub async fn try_pair(
+    async fn try_pair(
         &self,
         state: CryptoConfig,
         app_name: String,
@@ -138,7 +157,7 @@ impl HostRecord {
         Ok(v)
     }
 
-    pub async fn pair(
+    async fn pair(
         &self,
         state: CryptoConfig,
         app_name: String,
