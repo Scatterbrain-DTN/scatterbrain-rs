@@ -25,10 +25,20 @@ pub struct ServiceScanner {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "flutter", frb(opaque))]
+#[cfg(not(feature = "flutter"))]
 pub struct HostRecord {
     pub name: String,
     pub addr: BTreeSet<IpAddr>,
     pub port: u16,
+}
+
+#[cfg_attr(feature = "flutter", frb(opaque))]
+#[cfg(feature = "flutter")]
+#[derive(Clone, Debug)]
+pub struct HostRecord {
+    pub(crate) name: String,
+    pub(crate) addr: BTreeSet<IpAddr>,
+    pub(crate) port: u16,
 }
 
 #[cfg(feature = "flutter")]
@@ -55,7 +65,7 @@ pub trait ServiceScannerLike {
     async fn discover_devices(
         &mut self,
         cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
-    ) -> SbResult<()>;
+    ) -> anyhow::Result<()>;
 
     async fn stop_scan(&mut self);
 }
@@ -65,8 +75,9 @@ impl ServiceScannerLike for ServiceScanner {
     async fn discover_devices(
         &mut self,
         cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
-    ) -> SbResult<()> {
-        self.discover_devices_impl(std::sync::Arc::new(cb)).await
+    ) -> anyhow::Result<()> {
+        self.discover_devices_impl(std::sync::Arc::new(cb)).await?;
+        Ok(())
     }
 
     async fn stop_scan(&mut self) {

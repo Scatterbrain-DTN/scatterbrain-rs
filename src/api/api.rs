@@ -110,27 +110,8 @@ impl From<PairingSession> for TryPairConfirm {
     }
 }
 
-#[allow(async_fn_in_trait)]
-pub trait HostRecordLike {
-    async fn connect(&self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>>;
-
-    async fn try_pair(
-        &self,
-        state: CryptoConfig,
-        app_name: String,
-        on_connect: impl Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + 'static,
-    ) -> anyhow::Result<PairStatus>;
-
-    async fn pair(
-        &self,
-        state: CryptoConfig,
-        app_name: String,
-        cb: impl FnOnce(Vec<String>) -> DartFnFuture<bool>,
-    ) -> anyhow::Result<SbSession>;
-}
-
-impl HostRecordLike for HostRecord {
-    async fn connect(&self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>> {
+impl HostRecord {
+    pub async fn connect(&self, state: CryptoConfig) -> anyhow::Result<Option<SbSession>> {
         let proto = self.clone().connect_impl().await?;
 
         if let Some(session) = proto.key_exchange(SessionState::from_b64(state)?).await? {
@@ -142,7 +123,7 @@ impl HostRecordLike for HostRecord {
         }
     }
 
-    async fn try_pair(
+    pub async fn try_pair(
         &self,
         state: CryptoConfig,
         app_name: String,
@@ -157,7 +138,7 @@ impl HostRecordLike for HostRecord {
         Ok(v)
     }
 
-    async fn pair(
+    pub async fn pair(
         &self,
         state: CryptoConfig,
         app_name: String,
@@ -174,90 +155,43 @@ impl HostRecordLike for HostRecord {
     }
 }
 
-#[allow(async_fn_in_trait)]
-pub trait SessionLike {
-    async fn set_on_connect(
-        &self,
-        on_connect: impl Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + Sized + 'static,
-    );
-
-    async fn on_connect(&self);
-
-    async fn get_identity(&self, id: Option<Uuid>) -> anyhow::Result<Vec<Identity>>;
-
-    async fn is_closed(&self) -> anyhow::Result<bool>;
-
-    async fn disconnect(&self);
-
-    async fn get_events(&self, block: bool, count: Option<u32>) -> anyhow::Result<Vec<SbEvent>>;
-
-    async fn get_messages<'a>(
-        &self,
-        application: String,
-        limit: Option<i32>,
-    ) -> anyhow::Result<Vec<Message>>;
-
-    async fn send_messages<'a>(
-        &self,
-        messages: Vec<Message>,
-        sign_identity: Option<Uuid>,
-    ) -> anyhow::Result<()>;
-
-    async fn initiate_identity_import<'a>(
-        &'a self,
-        id: Option<Uuid>,
-    ) -> anyhow::Result<ImportIdentityState>;
-
-    async fn get_messages_send_date<'a>(
-        &'a self,
-        application: String,
-        limit: Option<i32>,
-        start_date: NaiveDateTime,
-        end_date: NaiveDateTime,
-    ) -> anyhow::Result<Vec<Message>>;
-
-    async fn get_messages_recieve_date<'a>(
-        &'a self,
-        application: String,
-        limit: Option<i32>,
-        start_date: NaiveDateTime,
-        end_date: NaiveDateTime,
-    ) -> anyhow::Result<Vec<Message>>;
-}
-
-impl SessionLike for SbSession {
-    async fn set_on_connect(
+impl SbSession {
+    pub async fn set_on_connect(
         &self,
         on_connect: impl Fn(Option<SbSession>) -> DartFnFuture<()> + Send + Sync + Sized + 'static,
     ) {
         self.0.write().await.set_on_connect(Box::new(on_connect))
     }
 
-    async fn on_connect(&self) {
+    pub async fn on_connect(&self) {
         if let Some(on_connect) = self.0.read().await.on_connect() {
             on_connect(Some(self.clone())).await;
         }
     }
 
-    async fn get_identity(&self, id: Option<Uuid>) -> anyhow::Result<Vec<Identity>> {
+    pub async fn get_identity(&self, id: Option<Uuid>) -> anyhow::Result<Vec<Identity>> {
         Ok(self.0.write().await.get_identity(id).await?)
     }
 
-    async fn is_closed(&self) -> anyhow::Result<bool> {
+    pub async fn is_closed(&self) -> anyhow::Result<bool> {
         Ok(self.0.write().await.is_closed().await?)
     }
 
-    async fn disconnect(&self) {
+    pub async fn disconnect(&self) {
         if let Some(on_connect) = self.0.read().await.on_connect() {
             on_connect(None).await
         }
     }
 
-    async fn get_events(&self, block: bool, count: Option<u32>) -> anyhow::Result<Vec<SbEvent>> {
+    pub async fn get_events(
+        &self,
+        block: bool,
+        count: Option<u32>,
+    ) -> anyhow::Result<Vec<SbEvent>> {
         Ok(self.0.write().await.get_events(block, count).await?)
     }
 
-    async fn get_messages<'a>(
+    pub async fn get_messages<'a>(
         &self,
         application: String,
         limit: Option<i32>,
@@ -270,7 +204,7 @@ impl SessionLike for SbSession {
             .await?)
     }
 
-    async fn send_messages<'a>(
+    pub async fn send_messages<'a>(
         &self,
         messages: Vec<Message>,
         sign_identity: Option<Uuid>,
@@ -283,14 +217,14 @@ impl SessionLike for SbSession {
             .await?)
     }
 
-    async fn initiate_identity_import<'a>(
+    pub async fn initiate_identity_import<'a>(
         &'a self,
         id: Option<Uuid>,
     ) -> anyhow::Result<ImportIdentityState> {
         Ok(self.0.write().await.initiate_identity_import(id).await?)
     }
 
-    async fn get_messages_send_date<'a>(
+    pub async fn get_messages_send_date<'a>(
         &'a self,
         application: String,
         limit: Option<i32>,
@@ -305,7 +239,7 @@ impl SessionLike for SbSession {
             .await?)
     }
 
-    async fn get_messages_recieve_date<'a>(
+    pub async fn get_messages_recieve_date<'a>(
         &'a self,
         application: String,
         limit: Option<i32>,
