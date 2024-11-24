@@ -7,7 +7,6 @@ pub use core::future::Future;
 #[cfg(feature = "flutter")]
 pub use flutter_rust_bridge::DartFnFuture;
 pub use serde::{Deserialize, Serialize};
-pub use sodiumoxide::crypto::kx::{PublicKey, SessionKey};
 pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 pub use std::pin::Pin;

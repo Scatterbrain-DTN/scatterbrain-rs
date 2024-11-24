@@ -11,19 +11,20 @@ pub use super::types::{CryptoConfig, ImportIdentityState};
 use super::types::{PairingAck, PairingInitiate};
 pub use super::{error::SbResult, mdns::HostRecord};
 pub use crate::crypto::SessionState;
-use crate::crypto::{CryptoMessageWrapper, EncodeB64, Session};
+use crate::crypto::{CryptoMessageWrapper, EncodeB64, KxSession, Session};
 
 use crate::flutter_helpers::SessionTrait;
 pub use crate::proto::{PairingSynAck, SbEvent};
 pub use crate::response::{Identity, Message};
 use crate::types::{Ack, CryptoMessage, PairingRequest};
+use base64::{engine::general_purpose::URL_SAFE, Engine as _};
 use bip39::Mnemonic;
 use chrono::NaiveDateTime;
+use dryoc::constants::CRYPTO_GENERICHASH_BYTES_MIN;
+use dryoc::generichash::{GenericHash, Key};
+use dryoc::kx::PublicKey;
+use dryoc::types::StackByteArray;
 pub use flutter_rust_bridge::{frb, DartFnFuture};
-
-use sodiumoxide::base64;
-use sodiumoxide::crypto::generichash;
-use sodiumoxide::crypto::kx::{client_session_keys, PublicKey, SessionKey};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 pub use tokio::sync::RwLock;
 use tokio::sync::RwLockWriteGuard;
@@ -52,8 +53,7 @@ pub struct PairingSession {
     pub coin: Vec<String>,
     pub(crate) state: SessionState,
     pub session: Uuid,
-    pub(crate) tx: SessionKey,
-    pub(crate) rx: SessionKey,
+    pub(crate) kx_session: KxSession,
     pub(crate) remotekey: PublicKey,
 
     pub(crate) stream: Box<dyn ProtoStreamTrait + Send + Sync>,
@@ -62,8 +62,7 @@ pub struct PairingSession {
 pub struct TryPairConfirm {
     pub(crate) state: SessionState,
     pub(crate) session: Uuid,
-    pub(crate) tx: SessionKey,
-    pub(crate) rx: SessionKey,
+    pub(crate) kx_session: KxSession,
     pub(crate) remotekey: PublicKey,
 }
 
@@ -75,12 +74,11 @@ pub struct PairResult {
 
 impl PairingSession {
     pub async fn try_pair_confirm(self, accept: bool) -> anyhow::Result<PairResult> {
-        let remotekey = base64::encode(&self.remotekey.0, base64::Variant::UrlSafe);
+        let remotekey = URL_SAFE.encode(&self.remotekey);
         let confirm = TryPairConfirm {
             state: self.state,
             session: self.session,
-            tx: self.tx,
-            rx: self.rx,
+            kx_session: self.kx_session,
             remotekey: self.remotekey,
         };
         let s = self.stream.try_pair_confirm(confirm, accept).await?;
@@ -103,8 +101,7 @@ impl From<PairingSession> for TryPairConfirm {
         TryPairConfirm {
             state: value.state,
             session: value.session,
-            tx: value.tx,
-            rx: value.rx,
+            kx_session: value.kx_session,
             remotekey: value.remotekey,
         }
     }
@@ -376,16 +373,17 @@ where
             if accept {
                 let mut ack = PairingSynAck::default();
                 ack.success = true;
-                self.write_message(CryptoMessageWrapper::new_message(&ack, &session.rx)?.message())
-                    .await?;
+                self.write_message(
+                    CryptoMessageWrapper::new_message(&ack, session.kx_session.rx_as_array())?
+                        .message(),
+                )
+                .await?;
 
                 Ok(SbSession(Arc::new(RwLock::new(Session {
                     session: session.session,
-                    rx: session.rx,
-                    tx: session.tx,
+                    session_keys: session.kx_session,
                     state: SessionState {
-                        secretkey: session.state.secretkey,
-                        pubkey: session.state.pubkey,
+                        kp: session.state.kp,
                         remotekey: Some(session.remotekey),
                     },
                     stream: *self,
@@ -394,8 +392,11 @@ where
                 let mut ack = PairingSynAck::default();
                 ack.success = false;
                 ack.message = "pairing request rejected".to_owned();
-                self.write_message(CryptoMessageWrapper::new_message(&ack, &session.rx)?.message())
-                    .await?;
+                self.write_message(
+                    CryptoMessageWrapper::new_message(&ack, session.kx_session.rx_as_array())?
+                        .message(),
+                )
+                .await?;
                 return Err(Error::PairingFailed);
             }
         })
@@ -408,7 +409,7 @@ where
 {
     pub async fn try_pair(mut self, state: SessionState, app_name: String) -> SbResult<PairStatus> {
         let i = PairingInitiate {
-            pubkey: state.pubkey.0.iter().copied().collect(),
+            pubkey: state.kp.public_key.iter().copied().collect(),
         };
         self.write_message(&i).await?;
         let v: PairingAck = self.read_message().await?;
@@ -418,25 +419,22 @@ where
             .ok_or_else(|| Error::CorruptHeader)?
             .session
             .ok_or_else(|| Error::CorruptHeader)?;
-        let sp = PublicKey(
-            v.pubkey
-                .try_into()
-                .map_err(|_| Error::Crypto("pubkey wrong size".to_owned()))?,
-        );
 
-        let (rx, tx) = client_session_keys(&state.pubkey, &state.secretkey, &sp).unwrap();
+        let ack_remote_key: PublicKey = v.pubkey.as_slice().try_into()?;
+
+        let s = dryoc::kx::Session::new_client(&state.kp, &ack_remote_key)?;
+
         if let Some(remotekey) = state.remotekey {
-            if remotekey.0 != sp.0 {
+            // TODO is the right
+            if remotekey != ack_remote_key {
                 return Err(Error::MitmDetected);
             }
             Ok(PairStatus::Paired(SbSession(Arc::new(RwLock::new(
                 Session {
                     session: session_id.as_uuid(),
-                    rx,
-                    tx,
+                    session_keys: s,
                     state: SessionState {
-                        secretkey: state.secretkey,
-                        pubkey: state.pubkey,
+                        kp: state.kp,
                         remotekey: Some(remotekey),
                     },
                     stream: self,
@@ -446,18 +444,18 @@ where
             let mut pr = PairingRequest::default();
             pr.name = app_name;
             pr.session = v.session;
-            let pr = CryptoMessageWrapper::new_message(&pr, &rx)?;
+            let pr = CryptoMessageWrapper::new_message(&pr, s.rx_as_array())?;
             self.write_message(pr.message()).await?;
 
-            let fingerprint =
-                generichash::hash(&i.pubkey, Some(generichash::DIGEST_MIN), None).unwrap();
+            let fingerprint: StackByteArray<{ CRYPTO_GENERICHASH_BYTES_MIN }> =
+                GenericHash::hash(&i.pubkey, None::<&Key>).unwrap();
             let words = Mnemonic::from_entropy(fingerprint.as_ref())?;
 
             let v: CryptoMessage = self.read_message().await?;
 
             let v = CryptoMessageWrapper::new(v);
 
-            let v: Ack = v.decrypt(&tx)?;
+            let v: Ack = v.decrypt(s.tx_as_array())?;
 
             log::info!("got ack {}", v.success);
 
@@ -467,15 +465,13 @@ where
 
             Ok(PairStatus::NotPaired(PairingSession {
                 session: session_id.as_uuid(),
-                rx,
-                tx,
+                kx_session: s,
                 state: SessionState {
-                    secretkey: state.secretkey,
-                    pubkey: state.pubkey,
-                    remotekey: Some(sp),
+                    kp: state.kp,
+                    remotekey: state.remotekey,
                 },
                 coin: words.word_iter().map(|v| v.to_owned()).collect(),
-                remotekey: sp,
+                remotekey: ack_remote_key,
                 stream: Box::new(self),
             }))
         }

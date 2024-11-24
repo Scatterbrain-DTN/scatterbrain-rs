@@ -1,20 +1,19 @@
+use dryoc::{
+    constants::CRYPTO_KX_SESSIONKEYBYTES,
+    dryocsecretbox::{DryocSecretBox, VecBox},
+    kx::{KeyPair, PublicKey},
+    rng::randombytes_buf,
+    types::{ByteArray, StackByteArray},
+};
 #[cfg(feature = "flutter")]
 use flutter_rust_bridge::frb;
 
+use base64::{engine::general_purpose::URL_SAFE, Engine as _};
 use prost::{bytes::Buf, Message};
-use sodiumoxide::{
-    base64,
-    crypto::{
-        kx::{PublicKey, SecretKey, SessionKey},
-        secretbox::{open, seal, Key, Nonce},
-    },
-    randombytes::randombytes,
-};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
-use sodiumoxide::crypto::kx::{self};
 
 use crate::{
     error::{Error, SbResult},
@@ -34,19 +33,16 @@ where
 #[derive(Serialize, Deserialize, Clone)]
 #[cfg_attr(feature = "flutter", frb(opaque))]
 pub struct SessionState {
-    pub secretkey: SecretKey,
-    pub pubkey: PublicKey,
+    pub kp: KeyPair,
     pub remotekey: Option<PublicKey>,
 }
 
 #[cfg_attr(feature = "flutter", frb(ignore))]
 impl EncodeB64<CryptoConfig> for SessionState {
     fn b64(&self) -> CryptoConfig {
-        let secretkey = base64::encode(&self.secretkey.0, base64::Variant::UrlSafe);
-        let pubkey = base64::encode(&self.pubkey.0, base64::Variant::UrlSafe);
-        let remotekey = self
-            .remotekey
-            .map(|v| base64::encode(&v.0, base64::Variant::UrlSafe));
+        let secretkey = URL_SAFE.encode(&self.kp.secret_key);
+        let pubkey = URL_SAFE.encode(&self.kp.public_key);
+        let remotekey = self.remotekey.as_ref().map(|v| URL_SAFE.encode(v));
         CryptoConfig {
             secretkey,
             pubkey,
@@ -55,34 +51,39 @@ impl EncodeB64<CryptoConfig> for SessionState {
     }
 
     fn from_b64(val: CryptoConfig) -> SbResult<Self> {
-        let secretkey = base64::decode(&val.secretkey, base64::Variant::UrlSafe)
+        let secretkey = URL_SAFE
+            .decode(&val.secretkey)
             .map_err(|_| Error::Crypto("failed to parse base64".to_owned()))?;
-        let pubkey = base64::decode(&val.pubkey, base64::Variant::UrlSafe)
+        let pubkey = URL_SAFE
+            .decode(&val.pubkey)
             .map_err(|_| Error::Crypto("failed to parse base64".to_owned()))?;
         let remotekey = val
             .remotekey
             .map(|v| {
-                base64::decode(&v, base64::Variant::UrlSafe)
+                URL_SAFE
+                    .decode(&v)
                     .map_err(|_| Error::Crypto("failed to parse base64".to_owned()))
             })
             .transpose()?;
         Ok(Self {
-            secretkey: SecretKey(
-                secretkey
+            kp: KeyPair {
+                secret_key: secretkey
+                    .as_slice()
                     .try_into()
                     .map_err(|_| Error::Crypto("Secret key wrong size".to_owned()))?,
-            ),
-            pubkey: PublicKey(
-                pubkey
+
+                public_key: pubkey
+                    .as_slice()
                     .try_into()
                     .map_err(|_| Error::Crypto("Public key wrong size".to_owned()))?,
-            ),
+            },
             remotekey: remotekey
                 .map(|k| {
-                    Ok::<PublicKey, Error>(PublicKey(
-                        k.try_into()
+                    Ok::<PublicKey, Error>(
+                        k.as_slice()
+                            .try_into()
                             .map_err(|_| Error::Crypto("Public key wrong size".to_owned()))?,
-                    ))
+                    )
                 })
                 .transpose()?,
         })
@@ -91,19 +92,20 @@ impl EncodeB64<CryptoConfig> for SessionState {
 
 impl Default for SessionState {
     fn default() -> Self {
-        let (pubkey, secretkey) = kx::gen_keypair();
+        let kp = KeyPair::gen();
         Self {
-            pubkey,
-            secretkey,
+            kp,
             remotekey: None,
         }
     }
 }
 
+pub type KxSession =
+    dryoc::kx::Session<StackByteArray<{ dryoc::constants::CRYPTO_KX_SESSIONKEYBYTES }>>;
+
 pub struct Session<A> {
     pub session: Uuid,
-    pub rx: SessionKey,
-    pub tx: SessionKey,
+    pub session_keys: KxSession,
     pub state: SessionState,
     pub stream: ProtoStream<A>,
 }
@@ -127,7 +129,7 @@ where
     where
         M: Message + GetType + Default,
     {
-        let cm = CryptoMessageWrapper::new_message(&message, &self.rx)?;
+        let cm = CryptoMessageWrapper::new_message(&message, self.session_keys.rx_as_array())?;
         self.stream.write_message(cm.message()).await
     }
 
@@ -137,7 +139,7 @@ where
     {
         let cm: CryptoMessage = self.stream.read_message().await?;
         let w = CryptoMessageWrapper::new(cm);
-        w.decrypt(&self.tx)
+        w.decrypt(self.session_keys.tx_as_array())
     }
 }
 
@@ -161,24 +163,24 @@ impl CryptoMessageWrapper {
         &self.0
     }
 
-    pub fn new_message<M>(message: &M, key: &SessionKey) -> SbResult<Self>
+    pub fn new_message<M>(message: &M, key: &[u8; CRYPTO_KX_SESSIONKEYBYTES]) -> SbResult<Self>
     where
         M: Message + GetType + Default + Send,
     {
-        let nonce = randombytes(24);
+        let nonce = randombytes_buf(24);
         let n: [u8; 24] = nonce.clone().try_into().unwrap();
-        let n = Nonce(n);
         let mut m = Vec::new();
         ProtoStream::new(&mut m).write_message_sync(message)?;
         assert_ne!(m.len(), 0);
-        let m = seal(&m, &n, &Key(key.0));
+        let m = DryocSecretBox::encrypt_to_vecbox(&m, &n, key.as_array());
+        let m = m.to_vec();
         Ok(Self(CryptoMessage {
             nonce,
             encrypted: m,
         }))
     }
 
-    pub fn decrypt<M>(self, key: &SessionKey) -> SbResult<M>
+    pub fn decrypt<M>(self, key: &[u8; CRYPTO_KX_SESSIONKEYBYTES]) -> SbResult<M>
     where
         M: Message + GetType + Default + Send,
     {
@@ -187,8 +189,11 @@ impl CryptoMessageWrapper {
             .nonce
             .try_into()
             .map_err(|_| Error::Crypto("Nonce wrong size".to_owned()))?;
-        let nonce = Nonce(nonce);
-        let bytes = open(&self.0.encrypted, &nonce, &Key(key.0))
+        let bytes = VecBox::from_bytes(&self.0.encrypted)
+            .map_err(|_| Error::Crypto("Decrypt vecbox failed".to_owned()))?;
+
+        let bytes = bytes
+            .decrypt_to_vec(&nonce, key.as_array())
             .map_err(|_| Error::Crypto("Decrypt failed".to_owned()))?;
         let mut m = ProtoStream::new(bytes.reader());
         Ok(m.read_message_sync()?)
@@ -197,11 +202,8 @@ impl CryptoMessageWrapper {
 
 #[cfg(test)]
 mod tests {
-    use kx::client_session_keys;
-
-    use crate::proto::{ack::AckMaybeMessage, Ack};
-
     use super::{hash_as_uuid, *};
+    use crate::proto::{ack::AckMaybeMessage, Ack};
 
     #[test]
     fn crypto_message() {
@@ -211,12 +213,14 @@ mod tests {
             ack_maybe_message: Some(AckMaybeMessage::Text("()".to_owned())),
         };
 
-        let (p, sec) = kx::gen_keypair();
+        let kp = KeyPair::gen();
+        let remote = KeyPair::gen();
 
-        let (key, _) = client_session_keys(&p, &sec, &p).unwrap();
+        let key: KxSession = dryoc::kx::Session::new_client(&kp, &remote.public_key).unwrap();
 
-        let cm = CryptoMessageWrapper::new_message(&m, &key).expect("failed to encrypt");
-        let nm: Ack = cm.decrypt(&key).expect("failed to decrypt");
+        let cm =
+            CryptoMessageWrapper::new_message(&m, key.tx_as_array()).expect("failed to encrypt");
+        let nm: Ack = cm.decrypt(key.tx_as_array()).expect("failed to decrypt");
         assert!(nm.success);
         assert_eq!(m, nm);
     }

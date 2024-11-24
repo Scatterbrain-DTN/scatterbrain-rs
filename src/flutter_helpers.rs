@@ -23,9 +23,13 @@ pub use crate::response::{Identity, Message};
 pub use crate::types::{Ack, CryptoMessage, PairingRequest, SbSession};
 use bip39::Mnemonic;
 use chrono::NaiveDateTime;
+use dryoc::constants::CRYPTO_GENERICHASH_BYTES_MIN;
+use dryoc::generichash::GenericHash;
+use dryoc::generichash::Key;
+use dryoc::kx::PublicKey;
+use dryoc::types::StackByteArray;
 pub use flutter_rust_bridge::DartFnFuture;
-use sodiumoxide::crypto::generichash;
-use sodiumoxide::crypto::kx::{client_session_keys, PublicKey};
+
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use uuid::Uuid;
@@ -333,7 +337,7 @@ where
 {
     pub async fn key_exchange(mut self, state: SessionState) -> SbResult<Option<Session<A>>> {
         let i = PairingInitiate {
-            pubkey: state.pubkey.0.iter().copied().collect(),
+            pubkey: state.kp.public_key.iter().copied().collect(),
         };
         self.write_message(&i).await?;
 
@@ -343,24 +347,19 @@ where
             .ok_or_else(|| Error::CorruptHeader)?
             .session
             .ok_or_else(|| Error::CorruptHeader)?;
-        let sp = PublicKey(
-            v.pubkey
-                .try_into()
-                .map_err(|_| Error::Crypto("pubkey wrong size".to_owned()))?,
-        );
 
-        let (rx, tx) = client_session_keys(&state.pubkey, &state.secretkey, &sp).unwrap();
+        let ack_remote_key: PublicKey = v.pubkey.as_slice().try_into()?;
+        let s = dryoc::kx::Session::new_client(&state.kp, &ack_remote_key)?;
+
         if let Some(remotekey) = state.remotekey {
-            if remotekey.0 != sp.0 {
+            if remotekey != ack_remote_key {
                 return Err(Error::MitmDetected);
             }
             Ok(Some(Session {
                 session: session_id.as_uuid(),
-                rx,
-                tx,
+                session_keys: s,
                 state: SessionState {
-                    secretkey: state.secretkey,
-                    pubkey: state.pubkey,
+                    kp: state.kp,
                     remotekey: Some(remotekey),
                 },
                 stream: self,
@@ -381,7 +380,7 @@ where
         Fut: Future<Output = std::result::Result<bool, Box<dyn std::error::Error + Send + Sync>>>,
     {
         let i = PairingInitiate {
-            pubkey: state.pubkey.0.iter().copied().collect(),
+            pubkey: state.kp.public_key.iter().copied().collect(),
         };
         self.write_message(&i).await?;
 
@@ -391,24 +390,20 @@ where
             .ok_or_else(|| Error::CorruptHeader)?
             .session
             .ok_or_else(|| Error::CorruptHeader)?;
-        let sp = PublicKey(
-            v.pubkey
-                .try_into()
-                .map_err(|_| Error::Crypto("pubkey wrong size".to_owned()))?,
-        );
 
-        let (rx, tx) = client_session_keys(&state.pubkey, &state.secretkey, &sp).unwrap();
+        let ack_remote_key: PublicKey = v.pubkey.as_slice().try_into()?;
+
+        let s = dryoc::kx::Session::new_client(&state.kp, &ack_remote_key)?;
+
         if let Some(remotekey) = state.remotekey {
-            if remotekey.0 != sp.0 {
+            if remotekey != ack_remote_key {
                 return Err(Error::MitmDetected);
             }
             Ok(Session {
                 session: session_id.as_uuid(),
-                rx,
-                tx,
+                session_keys: s,
                 state: SessionState {
-                    secretkey: state.secretkey,
-                    pubkey: state.pubkey,
+                    kp: state.kp,
                     remotekey: Some(remotekey),
                 },
                 stream: self,
@@ -417,11 +412,10 @@ where
             let mut pr = PairingRequest::default();
             pr.name = app_name;
             pr.session = v.session;
-            let pr = CryptoMessageWrapper::new_message(&pr, &rx)?;
+            let pr = CryptoMessageWrapper::new_message(&pr, s.rx_as_array())?;
             self.write_message(pr.message()).await?;
-
-            let fingerprint =
-                generichash::hash(&i.pubkey, Some(generichash::DIGEST_MIN), None).unwrap();
+            let fingerprint: StackByteArray<{ CRYPTO_GENERICHASH_BYTES_MIN }> =
+                GenericHash::hash(&i.pubkey, None::<&Key>).unwrap();
             let words = Mnemonic::from_entropy(fingerprint.as_ref())?;
             let confirmed = cb(words).await?; // I hate HRTBs
 
@@ -429,7 +423,7 @@ where
 
             let v = CryptoMessageWrapper::new(v);
 
-            let ack: Ack = v.decrypt(&tx)?;
+            let ack: Ack = v.decrypt(s.tx_as_array())?;
 
             log::info!("got ack {}", ack.success);
 
@@ -437,23 +431,25 @@ where
             if !ack.success || !confirmed {
                 synack.success = false;
                 synack.message = "Pairing request rejected".to_owned();
-                self.write_message(CryptoMessageWrapper::new_message(&ack, &rx)?.message())
-                    .await?;
+                self.write_message(
+                    CryptoMessageWrapper::new_message(&ack, s.rx_as_array())?.message(),
+                )
+                .await?;
                 return Err(Error::PairingFailed);
             }
 
             synack.success = true;
-            self.write_message(CryptoMessageWrapper::new_message(&synack, &rx)?.message())
-                .await?;
+            self.write_message(
+                CryptoMessageWrapper::new_message(&synack, s.rx_as_array())?.message(),
+            )
+            .await?;
 
             Ok(Session {
                 session: session_id.as_uuid(),
-                rx,
-                tx,
+                session_keys: s,
                 state: SessionState {
-                    secretkey: state.secretkey,
-                    pubkey: state.pubkey,
-                    remotekey: Some(sp),
+                    kp: state.kp,
+                    remotekey: Some(ack_remote_key),
                 },
                 stream: self,
             })
