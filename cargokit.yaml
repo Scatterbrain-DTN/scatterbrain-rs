@@ -1,5 +1,11 @@
 cargo:
   debug:
     toolchain: nightly
+    extra_flags:
+      - --features
+      - flutter
   release:
     toolchain: nightly
+    extra_flags:
+      - --features
+      - flutter
