@@ -3,9 +3,9 @@ cargo:
     toolchain: nightly
     extra_flags:
       - --features
-      - flutter
+      - flutter_gen
   release:
     toolchain: nightly
     extra_flags:
       - --features
-      - flutter
+      - flutter_gen

@@ -47,4 +47,5 @@ base64 = "0.22.1"
 prost-build = "0.13.0"
 
 [features]
+flutter_gen = ["flutter"]
 flutter = ["dep:flutter_rust_bridge"]
