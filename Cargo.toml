@@ -57,6 +57,5 @@ zeroize = "1.8.1"
 prost-build = "0.13.0"
 
 [features]
-default = ["flutter"]
 flutter_gen = ["flutter"]
 flutter = ["dep:flutter_rust_bridge"]

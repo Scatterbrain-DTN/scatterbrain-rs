@@ -10,9 +10,9 @@ pub use mdns_sd::{ServiceDaemon, ServiceEvent};
 pub use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use tokio_util::sync::CancellationToken;
 
-use crate::error::SbResult;
-
+#[cfg(feature = "flutter")]
 use super::error::Error;
+use crate::error::SbResult;
 
 pub type HostRecords<'a> = tokio::sync::RwLockReadGuard<'a, BTreeMap<String, HostRecord>>;
 

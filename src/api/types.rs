@@ -31,9 +31,9 @@ pub use crate::api::proto::{
     ImportIdentityCommand, ImportIdentityResponse, MessageResponse, MessageType, PairingAck,
     PairingInitiate, PairingRequest, SbEvents, SendMessageCmd, TypePrefix, UnitResponse,
 };
-#[frb(non_opaque)]
+#[cfg_attr(feature = "flutter", flutter_rust_bridge::frb(non_opaque))]
 pub type DartFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
-#[frb(non_opaque)]
+#[cfg_attr(feature = "flutter", flutter_rust_bridge::frb(non_opaque))]
 pub type DartSyncFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
 
 use crate::crypto::{EncodeB64, SessionState};

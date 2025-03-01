@@ -9,7 +9,7 @@ pub mod serialize;
 pub mod types;
 pub use crate::types::GetType;
 
-#[flutter_rust_bridge::frb(ignore)]
+#[cfg_attr(feature = "flutter", flutter_rust_bridge::frb(ignore))]
 pub mod proto {
     pub use crate::types::GetType;
 
