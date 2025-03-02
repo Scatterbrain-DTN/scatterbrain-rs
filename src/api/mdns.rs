@@ -19,15 +19,15 @@ pub type HostRecords<'a> = tokio::sync::RwLockReadGuard<'a, BTreeMap<String, Hos
 struct ServiceScannerInner {
     devices: tokio::sync::RwLock<BTreeMap<String, HostRecord>>,
 }
-
+#[cfg(feature = "flutter")]
 struct CancelationHandle {
     token: CancellationToken,
-    #[cfg(feature = "flutter")]
     handle: Option<JoinHandle<Result<(), Error>>>,
 }
 
 pub struct ServiceScanner {
     inner: std::sync::Arc<ServiceScannerInner>,
+    #[cfg(feature = "flutter")]
     handle: Option<CancelationHandle>,
 }
 
@@ -136,6 +136,7 @@ impl ServiceScanner {
             inner: Arc::new(ServiceScannerInner {
                 devices: tokio::sync::RwLock::new(BTreeMap::new()),
             }),
+            #[cfg(feature = "flutter")]
             handle: None,
         }
     }
@@ -147,12 +148,13 @@ impl ServiceScanner {
     {
         let c = CancellationToken::new();
 
-        self.handle = Some(CancelationHandle {
-            token: c.clone(),
-            #[cfg(feature = "flutter")]
-            handle: None,
-        });
-
+        #[cfg(feature = "flutter")]
+        {
+            self.handle = Some(CancelationHandle {
+                token: c.clone(),
+                handle: None,
+            });
+        }
         self.inner.mdns_scan(cb, c).await
     }
 }
