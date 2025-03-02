@@ -13,7 +13,7 @@ pub use crate::crypto::SessionState;
 use crate::crypto::{CryptoMessageWrapper, EncodeB64, KxSession, Session};
 
 pub use crate::api::proto::{PairingSynAck, SbEvent};
-use crate::flutter_helpers::SessionTrait;
+use crate::connection::SessionTrait;
 pub use crate::response::{Identity, Message};
 use crate::types::{Ack, CryptoMessage, PairingRequest};
 use base64::{engine::general_purpose::URL_SAFE, Engine as _};
@@ -251,7 +251,7 @@ impl SbSession {
 
 impl<A> ProtoStreamTrait for ProtoStream<A>
 where
-    A: Unpin + Send + AsyncReadExt + AsyncWriteExt + Send + Sync + 'static,
+    A: Unpin + Send + AsyncReadExt + AsyncWriteExt + Sync + 'static,
 {
     fn try_pair_confirm(
         mut self: Box<Self>,

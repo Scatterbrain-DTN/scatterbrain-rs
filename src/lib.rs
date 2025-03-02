@@ -7,8 +7,6 @@ pub mod api;
 pub mod connection;
 pub mod constants;
 pub mod crypto;
-#[cfg(feature = "flutter")]
-pub(crate) mod flutter_helpers;
 pub use api::error;
 pub use api::mdns;
 pub use api::response;

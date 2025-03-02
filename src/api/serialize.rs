@@ -401,7 +401,8 @@ mod test {
     use std::sync::Arc;
     use std::time::Duration;
 
-    use crate::flutter_helpers::SessionState;
+    use crate::connection::SessionTrait;
+    use crate::crypto::SessionState;
     use crate::{
         api::proto::{ack::*, *},
         crypto::{CryptoMessageWrapper, KxSession},
@@ -601,6 +602,8 @@ mod test {
             },
             stream: client,
         };
+
+        #[cfg(feature = "flutter")]
         let session = SbSession(Arc::new(RwLock::new(session)));
 
         tokio::spawn(async move {
