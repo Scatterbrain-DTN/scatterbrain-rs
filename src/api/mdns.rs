@@ -4,6 +4,7 @@ pub use std::{
     future::Future,
 };
 
+use flutter_rust_bridge::BaseAsyncRuntime;
 #[cfg(feature = "flutter")]
 use flutter_rust_bridge::{frb, DartFnFuture, JoinHandle};
 pub use mdns_sd::{ServiceDaemon, ServiceEvent};
@@ -75,7 +76,13 @@ pub trait ServiceScannerLike {
         cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
     ) -> anyhow::Result<()>;
 
-    fn stop_scan(&mut self);
+    #[frb(sync)]
+    fn scan_nonblock(
+        &mut self,
+        cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
+    ) -> anyhow::Result<()>;
+
+    async fn stop_scan(&mut self) -> anyhow::Result<()>;
 }
 
 #[cfg(feature = "flutter")]
@@ -88,22 +95,64 @@ impl ServiceScannerLike for ServiceScanner {
         Ok(())
     }
 
-    fn stop_scan(&mut self) {
+    #[frb(sync)]
+    fn scan_nonblock(
+        &mut self,
+        cb: impl Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static,
+    ) -> anyhow::Result<()> {
+        self.discover_devices_nonblock(std::sync::Arc::new(cb))
+    }
+
+    async fn stop_scan(&mut self) -> anyhow::Result<()> {
         if let Some(handle) = self.handle.take() {
             handle.token.cancel();
             if let Some(join) = handle.handle {
-                join.abort();
+                join.await??;
             }
         }
+        Ok(())
     }
 }
 
 #[cfg(feature = "flutter")]
 impl ServiceScanner {
+    fn discover_devices_nonblock(
+        &mut self,
+        cb: std::sync::Arc<dyn Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static>,
+    ) -> anyhow::Result<()> {
+        if self.handle.is_none() {
+            let s = self.inner.clone();
+            let c = CancellationToken::new();
+            let c2 = c.clone();
+            let task = crate::api::frb::FLUTTER_RUST_BRIDGE_HANDLER
+                .async_runtime()
+                .spawn(async move {
+                    s.mdns_scan(
+                        |res| {
+                            let cb = cb.clone();
+                            async move {
+                                cb(res.iter().map(|(_, v)| v.clone().into()).collect()).await;
+                                Ok(())
+                            }
+                        },
+                        c,
+                    )
+                    .await
+                });
+
+            self.handle = Some(CancelationHandle {
+                token: c2,
+                handle: Some(task),
+            });
+        }
+        Ok(())
+    }
+
     async fn discover_devices_impl(
         &mut self,
         cb: std::sync::Arc<dyn Fn(Vec<HostRecord>) -> DartFnFuture<()> + Send + Sync + 'static>,
-    ) -> SbResult<()> {
+    ) -> anyhow::Result<()> {
+        self.stop_scan().await?;
         let s = self.inner.clone();
         let c = CancellationToken::new();
         let c2 = c.clone();
@@ -170,7 +219,6 @@ impl ServiceScannerInner {
         // Scatterbrain mdns service type
         let service_type = "_sbd._tcp.local.";
         let receiver = mdns.browse(service_type)?;
-
         while let Some(event) = tokio::select! {
            event =  receiver.recv_async() => {
               Some(event)

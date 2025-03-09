@@ -15,3 +15,9 @@ pub mod proto {
 
     include!(concat!(env!("OUT_DIR"), "/proto.rs"));
 }
+
+#[cfg(feature = "flutter")]
+pub mod frb {
+    pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.7.0";
+    flutter_rust_bridge::frb_generated_default_handler!();
+}
