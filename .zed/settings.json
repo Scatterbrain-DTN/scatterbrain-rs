@@ -10,7 +10,7 @@
           "command": "check" // rust-analyzer.checkOnSave.command
         },
         "cargo": {
-          "features": ["flutter"]
+          //"features": ["flutter"]
         },
         "procMacro": {
           //  "ignored": { "async-trait": ["async_trait"] }
