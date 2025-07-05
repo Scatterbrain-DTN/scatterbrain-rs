@@ -4,6 +4,7 @@ pub use std::{
     future::Future,
 };
 
+#[cfg(feature = "flutter")]
 use flutter_rust_bridge::BaseAsyncRuntime;
 #[cfg(feature = "flutter")]
 use flutter_rust_bridge::{frb, DartFnFuture, JoinHandle};

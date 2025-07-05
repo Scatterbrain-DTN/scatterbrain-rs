@@ -13,7 +13,7 @@ message Ack {
     }
 }
 
-// Protobuf has no native ProtoUuid type. This is 128 bit ProtoUuid.
+// Protobuf has no native UUID type. This is 128 bit UUID.
 message ProtoUuid {
     uint64 lower = 1;
     uint64 upper = 2;
@@ -41,6 +41,13 @@ enum MessageType {
     JUST_UKES = 10;
     ACK = 11;
     INVALID = 12;
+    MESHTASTIC_ANNOUNCE = 13;
+    MESHTASTIC_ANNOUNCE_ACK = 14;
+    MESHTASTIC_ANNOUNCE_SYNACK = 15;
+    MESHTASTIC_ERR = 16;
+    MESHTASTIC_MERKLE = 17;
+    MESHTASTIC_STREAM = 18;
+
 
     // desktop types
     GET_MESSAGE = 51;
@@ -77,6 +84,12 @@ message TypePrefix {
 message Advertise {
    // ScatterType type = 1;
     repeated uint32 provides = 1;
+    DeclareHashesMode mode = 2;
+}
+
+enum DeclareHashesMode {
+    NORMAL = 0;
+    MERKLEPROOF = 1;
 }
 
 // Used for avoiding retransmitting messages already on remote peer.
@@ -85,10 +98,74 @@ message DeclareHashes {
    // ScatterType type = 1;
     bool optout = 1;
     repeated bytes hashes = 2;
+    DeclareHashesMode mode = 3;
+    bool exists = 4;
+}
+
+enum MessageFlag {
+    MESSAGE_FLAG_UNKNOWN = 0;
+    PLAINTEXT = 1;
+    FORWARD_MESHTASTIC = 2;
+    END_RESERVED = 127;
+    LIMIT = 511;
+}
+
+message MeshtasticForwardSettings {
+    optional fixed32 force_channel = 1;
+}
+
+enum MeshtasticAckCode {
+    MESHTASTIC_ACK_UNKNOWN = 0;
+    TRANSACTION = 1;
+    WAIT = 2;
+    FULL = 3;
+    FAIL = 4;
+}
+
+
+message MeshtasticAnnounce {
+    ProtoUuid luid = 1;
+    bytes merkle_root = 2;
+}
+
+message MeshtasticAnnounceAck {
+    ProtoUuid luid = 1;
+    MeshtasticAckCode code = 2;
+    bytes merkle_root = 3;
+}
+
+message MeshtasticAnnounceSynAck {
+    MeshtasticAckCode code = 1;
+}
+
+message MeshtasticStream {
+    uint32 seq = 1;
+    bytes payload = 2;
+    bool end = 3;
+}
+
+message MeshtasticMerkle {
+    uint32 seq = 1;
+    repeated bytes hashes = 2;
+    bool end = 3;
+}
+
+enum MeshtasticErrCode {
+    UNKNOWN_ERROR = 0;
+    INVALID_ARGUMENT = 1;
+}
+
+message MeshtasticErr {
+    MeshtasticErrCode code = 1;
+    bool fatal = 2;
 }
 
 // header + metadata for a file, message or data stream
 message BlockData {
+    message MessageFlags {
+        MessageFlag tag = 1;
+        optional bytes blob = 2;
+    }
     repeated ProtoUuid from_fingerprint = 2;
     repeated ProtoUuid to_fingerprint = 3;
     string application = 4;
@@ -100,8 +177,9 @@ message BlockData {
     bool todisk = 10;
     bool endofstream = 11;
     uint64 send_date = 12;
-    repeated bytes nexthashes= 13; //size of this is fragment count
+    repeated bytes nexthashes = 13; //size of this is fragment count
     bytes sig = 14;
+    repeated MessageFlags flags = 15;
 }
 
 // body of file, message, or data stream.
