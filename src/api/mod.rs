@@ -13,7 +13,7 @@ pub use crate::types::GetType;
 pub mod proto {
     pub use crate::types::GetType;
 
-    include!(concat!(env!("OUT_DIR"), "/proto.rs"));
+    include!(concat!(env!("OUT_DIR"), "/scatterbrain.rs"));
 }
 
 #[cfg(feature = "flutter")]
