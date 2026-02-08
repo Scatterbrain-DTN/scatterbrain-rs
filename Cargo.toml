@@ -39,7 +39,7 @@ rusqlite = { version = "0.32.1", features = [
 bip39 = "2.2.2"
 chrono = "0.4.43"
 serde_json = "1.0.149"
-flutter_rust_bridge = { version = "=2.10.0", features = [
+flutter_rust_bridge = { version = "=2.11.1", features = [
     "uuid",
     "chrono",
 ], optional = true }
