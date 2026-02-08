@@ -8,17 +8,17 @@ crate-type = ["cdylib", "staticlib", "lib"]
 
 [dependencies]
 byteorder = "1.5.0"
-crc = "3.3.0"
+crc = "3.4.0"
 env_logger = "0.11.8"
 futures = { version = "0.3.31", features = ["io-compat", "compat"] }
-log = "0.4.27"
+log = "0.4.29"
 mdns-sd = "0.11.5"
 prost = "0.13.5"
 prost-types = "0.13.5"
-serde = { version = "1.0.219", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 dryoc = { version = "0.6.2", features = ["serde", "base64", "nightly"] }
 thiserror = "1.0.69"
-tokio = { version = "1.46.1", features = [
+tokio = { version = "1.49.0", features = [
     "fs",
     "io-std",
     "io-util",
@@ -29,28 +29,28 @@ tokio = { version = "1.46.1", features = [
     "time",
     "sync",
 ] }
-uuid = { version = "1.17.0", features = ["serde", "v4"] }
+uuid = { version = "1.20.0", features = ["serde", "v4"] }
 rusqlite = { version = "0.32.1", features = [
     "wasm32-wasi-vfs",
     "uuid",
     "chrono",
     "bundled-full",
 ] }
-bip39 = "2.2.0"
-chrono = "0.4.41"
-serde_json = "1.0.140"
+bip39 = "2.2.2"
+chrono = "0.4.43"
+serde_json = "1.0.149"
 flutter_rust_bridge = { version = "=2.10.0", features = [
     "uuid",
     "chrono",
 ], optional = true }
 rusqlite_migration = "1.3.1"
-tokio-util = "0.7.15"
-async-trait = "0.1.88"
-anyhow = { version = "1.0.98", features = ["backtrace"] }
+tokio-util = "0.7.18"
+async-trait = "0.1.89"
+anyhow = { version = "1.0.101", features = ["backtrace"] }
 base64 = "0.22.1"
 lazy_static = "1.5.0"
 fallible-iterator = "0.3.0"
-zeroize = "1.8.1"
+zeroize = "1.8.2"
 
 
 [build-dependencies]
